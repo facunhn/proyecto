@@ -48,6 +48,14 @@ body {
   background: var(--color-brand-violet);
 }
 
+/* Agranda todo el contenido de forma proporcional (texto, íconos, botones,
+   espaciados) en pantallas de celular, para que se lea y se toque mejor. */
+@media (max-width: 640px) {
+  html {
+    zoom: 1.18;
+  }
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-text);
