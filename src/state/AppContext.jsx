@@ -1,7 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { reducer, initialState } from './reducer';
 import { fetchPromos, publishPromo } from '../api/promosApi';
-import { login as loginRequest, signup as signupRequest } from '../api/authApi';
+import {
+  login as loginRequest,
+  signup as signupRequest,
+  logout as logoutRequest,
+  requestPasswordReset,
+  updatePassword,
+  onPasswordRecovery,
+} from '../api/authApi';
 
 const AppContext = createContext(null);
 
@@ -17,6 +24,10 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     loadPromos(dispatch);
+  }, []);
+
+  useEffect(() => {
+    return onPasswordRecovery(() => dispatch({ type: 'SET_SCREEN', screen: 'resetPassword' }));
   }, []);
 
   const actions = useMemo(
@@ -82,7 +93,30 @@ export function AppProvider({ children }) {
         );
       },
 
-      logout: () => dispatch({ type: 'LOGOUT' }),
+      logout: () => {
+        dispatch({ type: 'LOGOUT' });
+        logoutRequest();
+      },
+
+      sendPasswordReset: async (email) => {
+        dispatch({ type: 'AUTH_SUBMITTING' });
+        try {
+          await requestPasswordReset(email);
+          dispatch({ type: 'AUTH_SUBMIT_DONE' });
+        } catch (error) {
+          dispatch({ type: 'AUTH_ERROR', error: error.message });
+        }
+      },
+
+      submitPasswordReset: async (password) => {
+        dispatch({ type: 'AUTH_SUBMITTING' });
+        try {
+          const { user } = await updatePassword(password);
+          dispatch({ type: 'AUTH_SUCCESS', user });
+        } catch (error) {
+          dispatch({ type: 'AUTH_ERROR', error: error.message });
+        }
+      },
     }),
     [],
   );

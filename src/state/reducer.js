@@ -45,6 +45,9 @@ export function reducer(state, action) {
     case 'AUTH_ERROR':
       return { ...state, authSubmitting: false, authError: action.error };
 
+    case 'AUTH_SUBMIT_DONE':
+      return { ...state, authSubmitting: false, authError: null };
+
     case 'AUTH_SUCCESS':
       return {
         ...state,

@@ -9,10 +9,12 @@ import FavoritesScreen from './screens/FavoritesScreen';
 import PublishScreen from './screens/PublishScreen';
 import NearbyScreen from './screens/NearbyScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
 
 const SCREENS = {
   login: LoginScreen,
   signup: SignupScreen,
+  resetPassword: ResetPasswordScreen,
   home: HomeScreen,
   search: SearchScreen,
   detail: DetailScreen,
@@ -22,10 +24,12 @@ const SCREENS = {
   profile: ProfileScreen,
 };
 
+const NO_NAV_SCREENS = ['login', 'signup', 'resetPassword'];
+
 function AppShell() {
   const { state } = useApp();
   const Screen = SCREENS[state.screen] || HomeScreen;
-  const showBottomNav = state.screen !== 'login' && state.screen !== 'signup';
+  const showBottomNav = !NO_NAV_SCREENS.includes(state.screen);
 
   return (
     <div className="app-root">
