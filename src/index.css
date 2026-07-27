@@ -497,6 +497,7 @@ textarea.input {
   background: var(--color-accent-300);
   flex: none;
   border-radius: var(--radius-sm);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;

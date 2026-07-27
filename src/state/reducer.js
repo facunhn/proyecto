@@ -87,6 +87,12 @@ export function reducer(state, action) {
       return { ...state, favorites: has ? state.favorites.filter((id) => id !== action.id) : [...state.favorites, action.id] };
     }
 
+    case 'SET_FAVORITES':
+      return { ...state, favorites: action.favorites };
+
+    case 'PROFILE_UPDATED':
+      return { ...state, authSubmitting: false, authError: null, session: { ...state.session, ...action.user } };
+
     case 'SET_DRAFT_FIELD':
       return { ...state, draft: { ...state.draft, [action.field]: action.value }, draftJustPublished: false };
 

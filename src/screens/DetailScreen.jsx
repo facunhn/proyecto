@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
+import { recordRedemption } from '../api/redemptionsApi';
 import { ChevronLeftIcon, HeartIcon } from '../components/icons';
 
 export default function DetailScreen() {
   const { state, goHome, toggleFav } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
+  const [redeemed, setRedeemed] = useState(false);
 
   const promo = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
@@ -16,10 +18,19 @@ export default function DetailScreen() {
 
   const badgeLabel = promo.isBank ? 'BANCARIA' : promo.category.toUpperCase();
 
+  const handleShowCode = () => {
+    setRedeemed(true);
+    recordRedemption(promo.id);
+  };
+
   return (
     <div className="screen">
       <div className="detail-hero">
-        <div className="detail-hero-label">{promo.imageLabel}</div>
+        {promo.imageUrl ? (
+          <img src={promo.imageUrl} alt={promo.business} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className="detail-hero-label">{promo.imageLabel}</div>
+        )}
         <button type="button" className="btn btn-icon btn-secondary detail-hero-btn" style={{ left: 16 }} onClick={goHome} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
@@ -67,8 +78,8 @@ export default function DetailScreen() {
       </div>
 
       <div className="detail-footer">
-        <button type="button" className="btn btn-primary btn-block">
-          Mostrar código en el local
+        <button type="button" className="btn btn-primary btn-block" onClick={handleShowCode}>
+          {redeemed ? '✓ Código mostrado' : 'Mostrar código en el local'}
         </button>
       </div>
     </div>

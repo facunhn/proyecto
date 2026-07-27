@@ -3,7 +3,7 @@ import { accountInitials, profileName } from '../utils/account';
 import { SwitchIcon, ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon } from '../components/icons';
 
 export default function ProfileScreen() {
-  const { state, toggleAccount, logout } = useApp();
+  const { state, toggleAccount, logout, goTo } = useApp();
   const isNegocio = state.accountType === 'negocio';
   const accountLabel = isNegocio ? 'Cuenta negocio' : 'Cuenta personal';
   const switchLabel = isNegocio ? 'cuenta personal' : 'cuenta negocio';
@@ -26,27 +26,27 @@ export default function ProfileScreen() {
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
         </button>
-        <div className="profile-row" role="button" tabIndex={0}>
+        <button type="button" className="profile-row" onClick={() => goTo('editProfile')}>
           <div className="profile-row-left">
             <ProfileIcon size={18} />
             <div>Mis datos</div>
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
-        </div>
-        <div className="profile-row" role="button" tabIndex={0}>
+        </button>
+        <button type="button" className="profile-row" onClick={() => goTo('redemptions')}>
           <div className="profile-row-left">
             <HistoryIcon size={18} />
             <div>Historial de canjes</div>
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
-        </div>
-        <div className="profile-row" role="button" tabIndex={0}>
+        </button>
+        <button type="button" className="profile-row" onClick={() => goTo('notifications')}>
           <div className="profile-row-left">
             <BellIcon size={18} />
             <div>Notificaciones</div>
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
-        </div>
+        </button>
         <div className="profile-row" role="button" tabIndex={0} style={{ borderBottom: 'none' }}>
           <div className="profile-row-left">
             <HelpIcon size={18} />

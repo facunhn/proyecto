@@ -72,6 +72,16 @@ export async function updatePassword(password) {
   return { user: mapSupabaseUser(data.user) };
 }
 
+export async function updateProfile(fields) {
+  if (!isSupabaseConfigured) {
+    await delay(300);
+    return { user: { id: 'mock-user', email: '', accountType: 'persona', ...fields } };
+  }
+  const { data, error } = await supabase.auth.updateUser({ data: fields });
+  if (error) throw new Error(error.message);
+  return { user: mapSupabaseUser(data.user) };
+}
+
 export function onPasswordRecovery(callback) {
   if (!isSupabaseConfigured) return () => {};
   const {

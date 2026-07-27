@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/AppContext';
+import { fetchMyPromos, updatePromo, deletePromo } from '../api/promosApi';
 
 const CATEGORY_OPTIONS = [
   { value: 'Gastronomía', label: 'Gastronomía' },
@@ -9,17 +10,76 @@ const CATEGORY_OPTIONS = [
   { value: 'Bancos', label: 'Promoción bancaria' },
 ];
 
+const EMPTY_DRAFT = { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', description: '' };
+
 export default function PublishScreen() {
   const { state, setDraftField, submitDraft } = useApp();
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [myPromos, setMyPromos] = useState([]);
+  const [loadingMyPromos, setLoadingMyPromos] = useState(true);
+  const fileInputRef = useRef(null);
+
   const draft = state.draft;
   const canSubmit = draft.businessName.trim() && draft.discountLabel.trim();
+
+  const loadMyPromos = () => {
+    setLoadingMyPromos(true);
+    fetchMyPromos()
+      .then(setMyPromos)
+      .finally(() => setLoadingMyPromos(false));
+  };
+
+  useEffect(() => {
+    loadMyPromos();
+  }, []);
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    Object.entries(EMPTY_DRAFT).forEach(([field, value]) => setDraftField(field, value));
+  };
+
+  const startEditing = (promo) => {
+    setEditingId(promo.id);
+    setPhotoFile(null);
+    setPhotoPreview(promo.imageUrl || null);
+    setDraftField('businessName', promo.business);
+    setDraftField('category', promo.category);
+    setDraftField('discountLabel', promo.discountLabel);
+    setDraftField('expiry', promo.expiry);
+    setDraftField('description', promo.description);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Seguro que querés borrar esta promoción?')) return;
+    await deletePromo(id);
+    if (editingId === id) resetForm();
+    loadMyPromos();
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     try {
-      await submitDraft(draft);
+      if (editingId) {
+        await updatePromo(editingId, draft, photoFile);
+      } else {
+        await submitDraft(draft, photoFile);
+      }
+      resetForm();
+      loadMyPromos();
     } finally {
       setSubmitting(false);
     }
@@ -28,8 +88,8 @@ export default function PublishScreen() {
   return (
     <div className="screen">
       <div className="screen-header screen-header--plain">
-        <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>Publicar promoción</h4>
-        <div className="text-muted">Como comercio, creá una nueva oferta</div>
+        <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>{editingId ? 'Editar promoción' : 'Publicar promoción'}</h4>
+        <div className="text-muted">Como comercio, creá o actualizá una oferta</div>
       </div>
 
       <div className="screen-body" style={{ gap: 14 }}>
@@ -66,33 +126,56 @@ export default function PublishScreen() {
             placeholder="Detalle de la promoción y condiciones"
           />
         </div>
-        <div className="dropzone">
-          Foto o logo del comercio
-          <br />
-          <br />
-          (arrastrar imagen)
+
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
+        <div className="dropzone" onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', overflow: 'hidden', padding: photoPreview ? 0 : undefined }}>
+          {photoPreview ? (
+            <img src={photoPreview} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <>
+              Foto o logo del comercio
+              <br />
+              <br />
+              (tocá para elegir una imagen)
+            </>
+          )}
         </div>
+
         <button type="button" className="btn btn-block" disabled={!canSubmit || submitting} onClick={handleSubmit}>
-          {submitting ? 'Publicando…' : 'Publicar promoción'}
+          {submitting ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Publicar promoción'}
         </button>
-        {state.draftJustPublished && (
+        {editingId && (
+          <button type="button" className="auth-footer-link" style={{ alignSelf: 'center', fontSize: 12.5 }} onClick={resetForm}>
+            Cancelar edición
+          </button>
+        )}
+        {state.draftJustPublished && !editingId && (
           <div style={{ textAlign: 'center', color: 'var(--color-accent-700)', fontSize: 12.5, fontWeight: 700 }}>Promoción publicada con éxito</div>
         )}
 
         <hr className="hr" style={{ margin: '8px 0 4px' }} />
         <div style={{ fontWeight: 700, fontSize: 13 }}>Mis promociones publicadas</div>
-        {state.publishedPromos.map((p, i) => (
-          <div key={i} className="published-row">
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.business}</div>
-              <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
-                {p.category} · {p.discountLabel}
+        {loadingMyPromos && <div className="empty-state">Cargando…</div>}
+        {!loadingMyPromos &&
+          myPromos.map((p) => (
+            <div key={p.id} className="published-row">
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.business}</div>
+                <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
+                  {p.category} · {p.discountLabel}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => startEditing(p)}>
+                  Editar
+                </button>
+                <button type="button" className="auth-footer-link" style={{ fontSize: 12, color: '#c62828' }} onClick={() => handleDelete(p.id)}>
+                  Borrar
+                </button>
               </div>
             </div>
-            <div className="tag tag-accent">ACTIVA</div>
-          </div>
-        ))}
-        {state.publishedPromos.length === 0 && <div className="empty-state">Todavía no publicaste ninguna promoción.</div>}
+          ))}
+        {!loadingMyPromos && myPromos.length === 0 && <div className="empty-state">Todavía no publicaste ninguna promoción.</div>}
       </div>
     </div>
   );

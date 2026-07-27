@@ -10,6 +10,9 @@ import PublishScreen from './screens/PublishScreen';
 import NearbyScreen from './screens/NearbyScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ResetPasswordScreen from './screens/ResetPasswordScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
+import RedemptionsScreen from './screens/RedemptionsScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
 
 const SCREENS = {
   login: LoginScreen,
@@ -22,6 +25,9 @@ const SCREENS = {
   publish: PublishScreen,
   nearby: NearbyScreen,
   profile: ProfileScreen,
+  editProfile: EditProfileScreen,
+  redemptions: RedemptionsScreen,
+  notifications: NotificationsScreen,
 };
 
 const NO_NAV_SCREENS = ['login', 'signup', 'resetPassword'];

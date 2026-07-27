@@ -8,7 +8,11 @@ export default function PromoListItem({ promo, onOpen, dark, expiryPrefix }) {
       onKeyDown={(e) => e.key === 'Enter' && onOpen(promo.id)}
     >
       <div className="promo-list-thumb">
-        <div className="promo-list-thumb-label">LOGO</div>
+        {promo.imageUrl ? (
+          <img src={promo.imageUrl} alt={promo.business} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+        ) : (
+          <div className="promo-list-thumb-label">LOGO</div>
+        )}
       </div>
       <div className="promo-list-body">
         <div className="promo-list-row">

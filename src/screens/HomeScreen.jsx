@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { accountInitials } from '../utils/account';
+import { fetchNotifications } from '../api/notificationsApi';
 import Logo from '../components/Logo';
 import CategoryChips from '../components/CategoryChips';
 import PromoCard from '../components/PromoCard';
@@ -15,8 +16,15 @@ const GEO_LABELS = {
 };
 
 export default function HomeScreen() {
-  const { state, openDetail, toggleFav, requestLocation, toggleAccount, setHomeCategory, retryLoadPromos } = useApp();
+  const { state, openDetail, toggleFav, requestLocation, toggleAccount, setHomeCategory, retryLoadPromos, goTo } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    fetchNotifications()
+      .then((list) => setHasUnread(list.some((n) => !n.read)))
+      .catch(() => {});
+  }, [state.session]);
 
   const feedPromos = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
@@ -29,10 +37,17 @@ export default function HomeScreen() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <Logo />
           <div style={{ display: 'flex', alignItems: 'stretch', gap: 20 }}>
-            <div style={{ position: 'relative', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 100 }}>
+            <button
+              type="button"
+              onClick={() => goTo('notifications')}
+              style={{ position: 'relative', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 100, background: 'none', border: 'none', cursor: 'pointer' }}
+              aria-label="Notificaciones"
+            >
               <BellIcon size={17} style={{ color: '#fff' }} />
-              <div style={{ position: 'absolute', top: 5, right: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-accent-400)' }} />
-            </div>
+              {hasUnread && (
+                <div style={{ position: 'absolute', top: 5, right: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-accent-400)' }} />
+              )}
+            </button>
             <button type="button" className="avatar-chip" style={{ border: '1px solid rgba(255,255,255,0.4)', cursor: 'pointer' }} onClick={toggleAccount}>
               {accountInitials(state.session, state.accountType)}
             </button>

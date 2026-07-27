@@ -6,7 +6,11 @@ export default function PromoCard({ promo, onOpen, onToggleFav }) {
   return (
     <div className="promo-card" role="button" tabIndex={0} onClick={() => onOpen(promo.id)} onKeyDown={(e) => e.key === 'Enter' && onOpen(promo.id)}>
       <div className="promo-card-image">
-        <div className="promo-card-image-label">{promo.imageLabel}</div>
+        {promo.imageUrl ? (
+          <img src={promo.imageUrl} alt={promo.business} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className="promo-card-image-label">{promo.imageLabel}</div>
+        )}
         <button type="button" className="btn btn-icon btn-secondary fav-toggle" onClick={(e) => onToggleFav(promo.id, e)} aria-label="Guardar promoción">
           <HeartIcon filled={promo.isFav} size={15} style={{ color: promo.isFav ? 'var(--color-accent)' : 'var(--color-text)' }} />
         </button>

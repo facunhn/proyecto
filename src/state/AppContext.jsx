@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import { reducer, initialState } from './reducer';
 import { fetchPromos, publishPromo } from '../api/promosApi';
 import {
@@ -7,8 +7,10 @@ import {
   logout as logoutRequest,
   requestPasswordReset,
   updatePassword,
+  updateProfile,
   onPasswordRecovery,
 } from '../api/authApi';
+import { fetchFavoriteIds, addFavorite, removeFavorite } from '../api/favoritesApi';
 
 const AppContext = createContext(null);
 
@@ -19,8 +21,19 @@ function loadPromos(dispatch) {
     .catch((error) => dispatch({ type: 'PROMOS_ERROR', error: error.message }));
 }
 
+function afterAuthSuccess(dispatch, user) {
+  dispatch({ type: 'AUTH_SUCCESS', user });
+  fetchFavoriteIds()
+    .then((favorites) => dispatch({ type: 'SET_FAVORITES', favorites }))
+    .catch(() => {});
+}
+
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     loadPromos(dispatch);
@@ -44,7 +57,7 @@ export function AppProvider({ children }) {
         dispatch({ type: 'AUTH_SUBMITTING' });
         try {
           const { user } = await loginRequest({ email, password });
-          dispatch({ type: 'AUTH_SUCCESS', user });
+          afterAuthSuccess(dispatch, user);
         } catch (error) {
           dispatch({ type: 'AUTH_ERROR', error: error.message });
         }
@@ -54,7 +67,7 @@ export function AppProvider({ children }) {
         dispatch({ type: 'AUTH_SUBMITTING' });
         try {
           const { user } = await signupRequest(form);
-          dispatch({ type: 'AUTH_SUCCESS', user });
+          afterAuthSuccess(dispatch, user);
         } catch (error) {
           dispatch({ type: 'AUTH_ERROR', error: error.message });
         }
@@ -71,13 +84,17 @@ export function AppProvider({ children }) {
       openDetail: (id) => dispatch({ type: 'OPEN_DETAIL', id }),
       toggleFav: (id, e) => {
         if (e?.stopPropagation) e.stopPropagation();
+        const wasFav = stateRef.current.favorites.includes(id);
         dispatch({ type: 'TOGGLE_FAV', id });
+        if (wasFav) removeFavorite(id);
+        else addFavorite(id);
       },
 
       setDraftField: (field, value) => dispatch({ type: 'SET_DRAFT_FIELD', field, value }),
-      submitDraft: async (draft) => {
-        const promo = await publishPromo(draft);
+      submitDraft: async (draft, photoFile) => {
+        const promo = await publishPromo(draft, photoFile);
         dispatch({ type: 'PUBLISH_SUCCESS', promo });
+        return promo;
       },
 
       requestLocation: () => {
@@ -112,9 +129,21 @@ export function AppProvider({ children }) {
         dispatch({ type: 'AUTH_SUBMITTING' });
         try {
           const { user } = await updatePassword(password);
-          dispatch({ type: 'AUTH_SUCCESS', user });
+          afterAuthSuccess(dispatch, user);
         } catch (error) {
           dispatch({ type: 'AUTH_ERROR', error: error.message });
+        }
+      },
+
+      updateMyProfile: async (fields) => {
+        dispatch({ type: 'AUTH_SUBMITTING' });
+        try {
+          const { user } = await updateProfile(fields);
+          dispatch({ type: 'PROFILE_UPDATED', user });
+          return true;
+        } catch (error) {
+          dispatch({ type: 'AUTH_ERROR', error: error.message });
+          return false;
         }
       },
     }),
