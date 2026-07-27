@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { fetchMyPromos, updatePromo, deletePromo } from '../api/promosApi';
+import { compressImage } from '../utils/image';
 
 const CATEGORY_OPTIONS = [
   { value: 'Gastronomía', label: 'Gastronomía' },
@@ -36,11 +37,12 @@ export default function PublishScreen() {
     loadMyPromos();
   }, []);
 
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
+    const compressed = await compressImage(file);
+    setPhotoFile(compressed);
+    setPhotoPreview(URL.createObjectURL(compressed));
   };
 
   const resetForm = () => {

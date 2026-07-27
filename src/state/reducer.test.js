@@ -63,4 +63,25 @@ describe('reducer', () => {
     const next = reducer(initialState, { type: 'NOT_A_REAL_ACTION' });
     expect(next).toBe(initialState);
   });
+
+  it('replaces favorites wholesale when they are loaded from the backend', () => {
+    const stateWithLocalFavs = { ...initialState, favorites: [1] };
+    const next = reducer(stateWithLocalFavs, { type: 'SET_FAVORITES', favorites: [5, 8] });
+    expect(next.favorites).toEqual([5, 8]);
+  });
+
+  it('merges profile edits into the existing session without touching the screen or account type', () => {
+    const loggedInState = {
+      ...initialState,
+      screen: 'editProfile',
+      accountType: 'negocio',
+      session: { id: '1', email: 'a@b.com', name: 'Old Name', accountType: 'negocio', phone: '' },
+    };
+    const next = reducer(loggedInState, { type: 'PROFILE_UPDATED', user: { name: 'New Name', phone: '11 5555-5555' } });
+
+    expect(next.session).toEqual({ id: '1', email: 'a@b.com', name: 'New Name', accountType: 'negocio', phone: '11 5555-5555' });
+    expect(next.screen).toBe('editProfile');
+    expect(next.accountType).toBe('negocio');
+    expect(next.authSubmitting).toBe(false);
+  });
 });

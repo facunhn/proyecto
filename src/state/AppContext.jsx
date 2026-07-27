@@ -8,6 +8,7 @@ import {
   requestPasswordReset,
   updatePassword,
   updateProfile,
+  getSessionUser,
   onPasswordRecovery,
 } from '../api/authApi';
 import { fetchFavoriteIds, addFavorite, removeFavorite } from '../api/favoritesApi';
@@ -43,6 +44,13 @@ export function AppProvider({ children }) {
     return onPasswordRecovery(() => dispatch({ type: 'SET_SCREEN', screen: 'resetPassword' }));
   }, []);
 
+  // Si ya había una sesión guardada (login previo), entra directo sin pedir login de nuevo.
+  useEffect(() => {
+    getSessionUser().then((user) => {
+      if (user) afterAuthSuccess(dispatch, user);
+    });
+  }, []);
+
   const actions = useMemo(
     () => ({
       retryLoadPromos: () => loadPromos(dispatch),
@@ -74,7 +82,11 @@ export function AppProvider({ children }) {
       },
 
       skipAuth: () => dispatch({ type: 'SKIP_AUTH' }),
-      toggleAccount: () => dispatch({ type: 'TOGGLE_ACCOUNT' }),
+      toggleAccount: () => {
+        const nextType = stateRef.current.accountType === 'negocio' ? 'persona' : 'negocio';
+        dispatch({ type: 'TOGGLE_ACCOUNT' });
+        if (stateRef.current.session) updateProfile({ accountType: nextType }).catch(() => {});
+      },
 
       setHomeCategory: (category) => dispatch({ type: 'SET_HOME_CATEGORY', category }),
       setSearchQuery: (query) => dispatch({ type: 'SET_SEARCH_QUERY', query }),

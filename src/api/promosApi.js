@@ -24,6 +24,13 @@ function mapRow(row) {
   };
 }
 
+function friendlyError(error) {
+  if (error.code === '42501' || /row-level security/i.test(error.message)) {
+    return new Error('Necesitás una cuenta de negocio para publicar o editar promociones.');
+  }
+  return new Error(error.message);
+}
+
 async function uploadPromoPhoto(file, userId) {
   const path = `${userId}/${Date.now()}-${file.name}`;
   const { error } = await supabase.storage.from('promo-photos').upload(path, file);
@@ -32,6 +39,11 @@ async function uploadPromoPhoto(file, userId) {
     data: { publicUrl },
   } = supabase.storage.from('promo-photos').getPublicUrl(path);
   return { imageUrl: publicUrl, imagePath: path };
+}
+
+async function removePromoPhoto(path) {
+  if (!path) return;
+  await supabase.storage.from('promo-photos').remove([path]).catch(() => {});
 }
 
 function draftToRow(draft) {
@@ -117,7 +129,10 @@ export async function publishPromo(draft, photoFile) {
     })
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) {
+    await removePromoPhoto(photoFields.imagePath);
+    throw friendlyError(error);
+  }
   return mapRow(data);
 }
 
@@ -132,24 +147,36 @@ export async function updatePromo(id, draft, photoFile) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Tenés que iniciar sesión para editar tus promociones.');
 
+  let oldImagePath = null;
   let photoFields = {};
-  if (photoFile) photoFields = await uploadPromoPhoto(photoFile, user.id);
+  if (photoFile) {
+    const { data: existing } = await supabase.from('promos').select('image_path').eq('id', id).single();
+    oldImagePath = existing?.image_path || null;
+    photoFields = await uploadPromoPhoto(photoFile, user.id);
+  }
 
   const { data, error } = await supabase
     .from('promos')
     .update({
       ...draftToRow(draft),
-      ...photoFields.imageUrl ? { image_url: photoFields.imageUrl, image_path: photoFields.imagePath } : {},
+      ...(photoFields.imageUrl ? { image_url: photoFields.imageUrl, image_path: photoFields.imagePath } : {}),
     })
     .eq('id', id)
     .select()
     .single();
-  if (error) throw new Error(error.message);
+  if (error) {
+    await removePromoPhoto(photoFields.imagePath);
+    throw friendlyError(error);
+  }
+
+  if (oldImagePath && oldImagePath !== photoFields.imagePath) await removePromoPhoto(oldImagePath);
   return mapRow(data);
 }
 
 export async function deletePromo(id) {
   if (!isSupabaseConfigured) return;
+  const { data: existing } = await supabase.from('promos').select('image_path').eq('id', id).single();
   const { error } = await supabase.from('promos').delete().eq('id', id);
-  if (error) throw new Error(error.message);
+  if (error) throw friendlyError(error);
+  await removePromoPhoto(existing?.image_path);
 }

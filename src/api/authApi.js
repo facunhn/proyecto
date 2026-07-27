@@ -79,7 +79,18 @@ export async function updateProfile(fields) {
   }
   const { data, error } = await supabase.auth.updateUser({ data: fields });
   if (error) throw new Error(error.message);
+  // Refresca el token para que los permisos del backend (ej: solo negocios pueden
+  // publicar) se enteren del cambio al instante, no recién en el próximo login.
+  await supabase.auth.refreshSession().catch(() => {});
   return { user: mapSupabaseUser(data.user) };
+}
+
+export async function getSessionUser() {
+  if (!isSupabaseConfigured) return null;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user ? mapSupabaseUser(session.user) : null;
 }
 
 export function onPasswordRecovery(callback) {
