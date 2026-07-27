@@ -5,18 +5,24 @@ import { login as loginRequest, signup as signupRequest } from '../api/authApi';
 
 const AppContext = createContext(null);
 
+function loadPromos(dispatch) {
+  dispatch({ type: 'PROMOS_LOADING' });
+  fetchPromos()
+    .then((promos) => dispatch({ type: 'PROMOS_LOADED', promos }))
+    .catch((error) => dispatch({ type: 'PROMOS_ERROR', error: error.message }));
+}
+
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    dispatch({ type: 'PROMOS_LOADING' });
-    fetchPromos()
-      .then((promos) => dispatch({ type: 'PROMOS_LOADED', promos }))
-      .catch((error) => dispatch({ type: 'PROMOS_ERROR', error: error.message }));
+    loadPromos(dispatch);
   }, []);
 
   const actions = useMemo(
     () => ({
+      retryLoadPromos: () => loadPromos(dispatch),
+
       goTo: (screen) => dispatch({ type: 'SET_SCREEN', screen }),
       goHome: () => dispatch({ type: 'SET_SCREEN', screen: 'home' }),
 

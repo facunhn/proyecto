@@ -15,7 +15,7 @@ const GEO_LABELS = {
 };
 
 export default function HomeScreen() {
-  const { state, openDetail, toggleFav, requestLocation, toggleAccount, setHomeCategory } = useApp();
+  const { state, openDetail, toggleFav, requestLocation, toggleAccount, setHomeCategory, retryLoadPromos } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
 
   const feedPromos = useMemo(() => {
@@ -48,10 +48,26 @@ export default function HomeScreen() {
       </div>
 
       <div className="screen-body screen-body--dark">
-        {feedPromos.map((p) => (
-          <PromoCard key={p.id} promo={p} onOpen={openDetail} onToggleFav={toggleFav} />
-        ))}
-        {feedPromos.length === 0 && <div className="empty-state empty-state--dark">No hay promociones en esta categoría.</div>}
+        {state.promosLoading && <div className="empty-state empty-state--dark">Buscando promociones…</div>}
+
+        {!state.promosLoading && state.promosError && (
+          <div className="empty-state empty-state--dark">
+            No pudimos cargar las promociones.
+            <br />
+            <br />
+            <button type="button" className="btn btn-primary" onClick={retryLoadPromos}>
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {!state.promosLoading &&
+          !state.promosError &&
+          feedPromos.map((p) => <PromoCard key={p.id} promo={p} onOpen={openDetail} onToggleFav={toggleFav} />)}
+
+        {!state.promosLoading && !state.promosError && feedPromos.length === 0 && (
+          <div className="empty-state empty-state--dark">No hay promociones en esta categoría.</div>
+        )}
       </div>
     </div>
   );
