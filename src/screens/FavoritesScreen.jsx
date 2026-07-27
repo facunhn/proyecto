@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import PromoListItem from '../components/PromoListItem';
+import SkeletonListItem from '../components/SkeletonListItem';
 
 export default function FavoritesScreen() {
   const { state, openDetail } = useApp();
@@ -25,10 +26,10 @@ export default function FavoritesScreen() {
       </div>
 
       <div className="screen-body">
-        {favoritePromos.map((p) => (
-          <PromoListItem key={p.id} promo={p} onOpen={openDetail} expiryPrefix="Vence" />
-        ))}
-        {favoritePromos.length === 0 && (
+        {state.promosLoading && [1, 2, 3].map((i) => <SkeletonListItem key={i} />)}
+        {!state.promosLoading &&
+          favoritePromos.map((p) => <PromoListItem key={p.id} promo={p} onOpen={openDetail} expiryPrefix="Vence" />)}
+        {!state.promosLoading && favoritePromos.length === 0 && (
           <div className="empty-state" style={{ padding: '60px 20px' }}>
             Todavía no guardaste ninguna promoción.
             <br />

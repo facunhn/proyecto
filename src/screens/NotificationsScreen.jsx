@@ -39,7 +39,13 @@ export default function NotificationsScreen() {
       </div>
 
       <div className="screen-body">
-        {loading && <div className="empty-state">Cargando…</div>}
+        {loading &&
+          [1, 2, 3].map((i) => (
+            <div key={i} className="published-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+              <div className="skeleton" style={{ height: 13, width: '85%' }} />
+              <div className="skeleton" style={{ height: 11, width: '35%' }} />
+            </div>
+          ))}
         {!loading &&
           notifications.map((n) => (
             <div key={n.id} className="published-row" style={{ alignItems: 'flex-start' }}>

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import PromoListItem from '../components/PromoListItem';
+import SkeletonListItem from '../components/SkeletonListItem';
 
 export default function NearbyScreen() {
   const { state, openDetail, requestLocation } = useApp();
@@ -56,12 +57,18 @@ export default function NearbyScreen() {
       </div>
 
       <div className="screen-body">
-        <div className="text-muted" style={{ marginBottom: 10 }}>
-          {state.geoStatus === 'granted' ? 'Ordenado por distancia real a tu ubicación' : 'Activá el geolocalizador para ver distancias reales'}
-        </div>
-        {nearby.slice(0, 6).map((p) => (
-          <PromoListItem key={p.id} promo={p} onOpen={openDetail} />
-        ))}
+        {state.promosLoading ? (
+          [1, 2, 3].map((i) => <SkeletonListItem key={i} />)
+        ) : (
+          <>
+            <div className="text-muted" style={{ marginBottom: 10 }}>
+              {state.geoStatus === 'granted' ? 'Ordenado por distancia real a tu ubicación' : 'Activá el geolocalizador para ver distancias reales'}
+            </div>
+            {nearby.slice(0, 6).map((p) => (
+              <PromoListItem key={p.id} promo={p} onOpen={openDetail} />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

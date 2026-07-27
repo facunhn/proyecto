@@ -6,6 +6,7 @@ import { fetchNotifications } from '../api/notificationsApi';
 import Logo from '../components/Logo';
 import CategoryChips from '../components/CategoryChips';
 import PromoCard from '../components/PromoCard';
+import SkeletonCard from '../components/SkeletonCard';
 import { BellIcon, PinIcon } from '../components/icons';
 
 const GEO_LABELS = {
@@ -63,7 +64,7 @@ export default function HomeScreen() {
       </div>
 
       <div className="screen-body screen-body--dark">
-        {state.promosLoading && <div className="empty-state empty-state--dark">Buscando promociones…</div>}
+        {state.promosLoading && [1, 2, 3].map((i) => <SkeletonCard key={i} />)}
 
         {!state.promosLoading && state.promosError && (
           <div className="empty-state empty-state--dark">

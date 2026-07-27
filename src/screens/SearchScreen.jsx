@@ -3,6 +3,7 @@ import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import CategoryChips from '../components/CategoryChips';
 import PromoListItem from '../components/PromoListItem';
+import SkeletonListItem from '../components/SkeletonListItem';
 
 export default function SearchScreen() {
   const { state, openDetail, setSearchQuery, setSearchCategory, toggleBankOnly } = useApp();
@@ -14,7 +15,11 @@ export default function SearchScreen() {
     return decorated.filter((p) => {
       const matchesCat = state.searchCategory === 'Todos' || p.category === state.searchCategory;
       const matchesBank = !state.bankOnly || p.isBank;
-      const matchesQuery = !q || p.business.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+      const matchesQuery =
+        !q ||
+        p.business.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q);
       return matchesCat && matchesBank && matchesQuery;
     });
   }, [state.promos, state.favorites, coords, state.searchQuery, state.searchCategory, state.bankOnly]);
@@ -35,12 +40,18 @@ export default function SearchScreen() {
       </div>
 
       <div className="screen-body screen-body--dark" style={{ gap: 0 }}>
-        <div className="text-muted" style={{ fontSize: 12, marginBottom: 10, color: 'var(--color-dark-text-muted)' }}>
-          {searchResults.length} resultados
-        </div>
-        {searchResults.map((p) => (
-          <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
-        ))}
+        {state.promosLoading ? (
+          [1, 2, 3].map((i) => <SkeletonListItem key={i} dark />)
+        ) : (
+          <>
+            <div className="text-muted" style={{ fontSize: 12, marginBottom: 10, color: 'var(--color-dark-text-muted)' }}>
+              {searchResults.length} resultados
+            </div>
+            {searchResults.map((p) => (
+              <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

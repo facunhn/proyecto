@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 import { reducer, initialState } from './reducer';
-import { fetchPromos, publishPromo } from '../api/promosApi';
+import { fetchPromos, publishPromo, deleteAllMyPromoPhotos } from '../api/promosApi';
 import {
   login as loginRequest,
   signup as signupRequest,
@@ -8,6 +8,7 @@ import {
   requestPasswordReset,
   updatePassword,
   updateProfile,
+  deleteAccount as deleteAccountRequest,
   getSessionUser,
   onPasswordRecovery,
 } from '../api/authApi';
@@ -152,6 +153,19 @@ export function AppProvider({ children }) {
         try {
           const { user } = await updateProfile(fields);
           dispatch({ type: 'PROFILE_UPDATED', user });
+          return true;
+        } catch (error) {
+          dispatch({ type: 'AUTH_ERROR', error: error.message });
+          return false;
+        }
+      },
+
+      deleteMyAccount: async () => {
+        dispatch({ type: 'AUTH_SUBMITTING' });
+        try {
+          await deleteAllMyPromoPhotos();
+          await deleteAccountRequest();
+          dispatch({ type: 'LOGOUT' });
           return true;
         } catch (error) {
           dispatch({ type: 'AUTH_ERROR', error: error.message });

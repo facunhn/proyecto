@@ -1,6 +1,7 @@
 import { delay } from './client';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
 import { MOCK_PROMOS } from './mockData';
+import { formatShortDate, todayIso } from '../utils/date';
 
 let mockPromos = [...MOCK_PROMOS];
 let nextMockId = mockPromos.length + 1;
@@ -12,7 +13,8 @@ function mapRow(row) {
     category: row.category,
     discountLabel: row.discount_label,
     description: row.description,
-    expiry: row.expiry,
+    expiry: row.expires_at ? formatShortDate(row.expires_at) : row.expiry || '',
+    expiresAt: row.expires_at || null,
     distance: row.is_bank ? 'Online' : '0.0 km',
     isBank: row.is_bank,
     code: row.code,
@@ -53,7 +55,7 @@ function draftToRow(draft) {
     category: draft.category,
     discount_label: draft.discountLabel,
     description: draft.description,
-    expiry: draft.expiry,
+    expires_at: draft.expiry || null,
     is_bank: isBank,
     redeem_hint: isBank ? 'Pagar con tarjeta adherida' : 'Mostrar código en caja',
   };
@@ -64,7 +66,11 @@ export async function fetchPromos() {
     await delay();
     return mockPromos;
   }
-  const { data, error } = await supabase.from('promos').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('promos')
+    .select('*')
+    .or(`expires_at.is.null,expires_at.gte.${todayIso()}`)
+    .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data.map(mapRow);
 }
@@ -86,6 +92,13 @@ export async function fetchMyPromos() {
     .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data.map(mapRow);
+}
+
+export async function fetchMyPromoStats() {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase.rpc('get_my_promo_stats');
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function publishPromo(draft, photoFile) {
@@ -179,4 +192,10 @@ export async function deletePromo(id) {
   const { error } = await supabase.from('promos').delete().eq('id', id);
   if (error) throw friendlyError(error);
   await removePromoPhoto(existing?.image_path);
+}
+
+export async function deleteAllMyPromoPhotos() {
+  if (!isSupabaseConfigured) return;
+  const mine = await fetchMyPromos();
+  await Promise.all(mine.filter((p) => p.imagePath).map((p) => removePromoPhoto(p.imagePath)));
 }

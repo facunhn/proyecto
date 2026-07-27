@@ -6,6 +6,17 @@ function Icon({ size = 18, children, ...rest }) {
   );
 }
 
+export function ShareIcon(props) {
+  return (
+    <Icon {...props}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" />
+    </Icon>
+  );
+}
+
 export function BellIcon(props) {
   return (
     <Icon {...props}>

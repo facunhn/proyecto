@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/AppContext';
-import { fetchMyPromos, updatePromo, deletePromo } from '../api/promosApi';
+import { fetchMyPromos, fetchMyPromoStats, updatePromo, deletePromo } from '../api/promosApi';
 import { compressImage } from '../utils/image';
+import { isPastDate } from '../utils/date';
+import SkeletonListItem from '../components/SkeletonListItem';
 
 const CATEGORY_OPTIONS = [
   { value: 'Gastronomía', label: 'Gastronomía' },
@@ -20,6 +22,7 @@ export default function PublishScreen() {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [myPromos, setMyPromos] = useState([]);
+  const [stats, setStats] = useState({});
   const [loadingMyPromos, setLoadingMyPromos] = useState(true);
   const fileInputRef = useRef(null);
 
@@ -31,6 +34,9 @@ export default function PublishScreen() {
     fetchMyPromos()
       .then(setMyPromos)
       .finally(() => setLoadingMyPromos(false));
+    fetchMyPromoStats()
+      .then((rows) => setStats(Object.fromEntries(rows.map((r) => [r.promo_id, r]))))
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -59,7 +65,7 @@ export default function PublishScreen() {
     setDraftField('businessName', promo.business);
     setDraftField('category', promo.category);
     setDraftField('discountLabel', promo.discountLabel);
-    setDraftField('expiry', promo.expiry);
+    setDraftField('expiry', promo.expiresAt || '');
     setDraftField('description', promo.description);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -116,7 +122,7 @@ export default function PublishScreen() {
           </div>
           <div className="field" style={{ flex: 1 }}>
             <label>Válido hasta</label>
-            <input className="input" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} placeholder="Ej: 30/09" />
+            <input className="input" type="date" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} min={new Date().toISOString().slice(0, 10)} />
           </div>
         </div>
         <div className="field">
@@ -157,26 +163,36 @@ export default function PublishScreen() {
 
         <hr className="hr" style={{ margin: '8px 0 4px' }} />
         <div style={{ fontWeight: 700, fontSize: 13 }}>Mis promociones publicadas</div>
-        {loadingMyPromos && <div className="empty-state">Cargando…</div>}
+        {loadingMyPromos && [1, 2].map((i) => <SkeletonListItem key={i} />)}
         {!loadingMyPromos &&
-          myPromos.map((p) => (
-            <div key={p.id} className="published-row">
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.business}</div>
-                <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
-                  {p.category} · {p.discountLabel}
+          myPromos.map((p) => {
+            const promoStats = stats[p.id];
+            const expired = isPastDate(p.expiresAt);
+            return (
+              <div key={p.id} className="published-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.business}</div>
+                  <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
+                    {p.category} · {p.discountLabel}
+                  </div>
+                  {promoStats && (
+                    <div className="text-muted" style={{ fontSize: 11, marginTop: 4 }}>
+                      ❤ {promoStats.favorites_count} guardados · {promoStats.redemptions_count} canjes
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {expired && <div className="tag" style={{ background: '#f3d6d6', color: '#8a2323' }}>VENCIDA</div>}
+                  <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => startEditing(p)}>
+                    Editar
+                  </button>
+                  <button type="button" className="auth-footer-link" style={{ fontSize: 12, color: '#c62828' }} onClick={() => handleDelete(p.id)}>
+                    Borrar
+                  </button>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => startEditing(p)}>
-                  Editar
-                </button>
-                <button type="button" className="auth-footer-link" style={{ fontSize: 12, color: '#c62828' }} onClick={() => handleDelete(p.id)}>
-                  Borrar
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         {!loadingMyPromos && myPromos.length === 0 && <div className="empty-state">Todavía no publicaste ninguna promoción.</div>}
       </div>
     </div>

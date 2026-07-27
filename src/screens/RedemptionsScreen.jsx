@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { fetchRedemptions } from '../api/redemptionsApi';
 import { ChevronLeftIcon } from '../components/icons';
+import SkeletonListItem from '../components/SkeletonListItem';
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -31,7 +32,7 @@ export default function RedemptionsScreen() {
       </div>
 
       <div className="screen-body">
-        {loading && <div className="empty-state">Cargando…</div>}
+        {loading && [1, 2, 3].map((i) => <SkeletonListItem key={i} />)}
         {!loading &&
           redemptions.map((r) => (
             <div key={r.id} className="published-row">

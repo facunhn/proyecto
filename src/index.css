@@ -594,6 +594,41 @@ textarea.input {
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* Skeleton loaders */
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(26, 19, 48, 0.08) 25%, rgba(26, 19, 48, 0.15) 37%, rgba(26, 19, 48, 0.08) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--dark {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.18) 37%, rgba(255, 255, 255, 0.08) 63%);
+  background-size: 400% 100%;
+}
+
+.skeleton-card {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-dark-divider);
+}
+
+.skeleton-list-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-divider);
+}
+
 /* Empty states */
 
 .empty-state {

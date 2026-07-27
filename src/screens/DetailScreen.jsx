@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { recordRedemption } from '../api/redemptionsApi';
-import { ChevronLeftIcon, HeartIcon } from '../components/icons';
+import { ChevronLeftIcon, HeartIcon, ShareIcon } from '../components/icons';
 
 export default function DetailScreen() {
   const { state, goHome, toggleFav } = useApp();
@@ -23,6 +23,24 @@ export default function DetailScreen() {
     recordRedemption(promo.id);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: promo.business,
+      text: `${promo.business}: ${promo.discountLabel} — ${promo.description}`,
+      url: window.location.origin,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // el usuario canceló el share, no hacemos nada
+      }
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+      alert('Copiado al portapapeles');
+    }
+  };
+
   return (
     <div className="screen">
       <div className="detail-hero">
@@ -34,15 +52,14 @@ export default function DetailScreen() {
         <button type="button" className="btn btn-icon btn-secondary detail-hero-btn" style={{ left: 16 }} onClick={goHome} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-secondary detail-hero-btn"
-          style={{ right: 16 }}
-          onClick={(e) => toggleFav(promo.id, e)}
-          aria-label="Guardar promoción"
-        >
-          <HeartIcon filled={promo.isFav} size={16} style={{ color: promo.isFav ? 'var(--color-accent)' : 'var(--color-text)' }} />
-        </button>
+        <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button type="button" className="btn btn-icon btn-secondary" onClick={(e) => toggleFav(promo.id, e)} aria-label="Guardar promoción">
+            <HeartIcon filled={promo.isFav} size={16} style={{ color: promo.isFav ? 'var(--color-accent)' : 'var(--color-text)' }} />
+          </button>
+          <button type="button" className="btn btn-icon btn-secondary" onClick={handleShare} aria-label="Compartir promoción">
+            <ShareIcon size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="screen-body screen-body--dark" style={{ paddingBottom: 100 }}>

@@ -85,6 +85,13 @@ export async function updateProfile(fields) {
   return { user: mapSupabaseUser(data.user) };
 }
 
+export async function deleteAccount() {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.rpc('delete_my_account');
+  if (error) throw new Error(error.message);
+  await supabase.auth.signOut();
+}
+
 export async function getSessionUser() {
   if (!isSupabaseConfigured) return null;
   const {
