@@ -60,16 +60,6 @@ export function AppProvider({ children }) {
     return onPasswordRecovery(() => dispatch({ type: 'SET_SCREEN', screen: 'resetPassword' }));
   }, []);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('ahorrix-dark-mode');
-    if (stored === '1') dispatch({ type: 'SET_DARK_MODE', value: true });
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : 'light');
-    localStorage.setItem('ahorrix-dark-mode', state.darkMode ? '1' : '0');
-  }, [state.darkMode]);
-
   // Si ya había una sesión guardada (login previo), entra directo sin pedir login de nuevo.
   useEffect(() => {
     getSessionUser().then((user) => {
@@ -179,8 +169,6 @@ export function AppProvider({ children }) {
           return false;
         }
       },
-
-      toggleDarkMode: () => dispatch({ type: 'SET_DARK_MODE', value: !stateRef.current.darkMode }),
 
       deleteMyAccount: async () => {
         dispatch({ type: 'AUTH_SUBMITTING' });

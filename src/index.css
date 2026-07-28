@@ -37,30 +37,6 @@
   --radius-md: 12px;
 }
 
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  --color-bg: #17102b;
-  --color-surface: #241a3d;
-  --color-divider: rgba(255, 255, 255, 0.14);
-  --color-text: #f2f0f8;
-  --color-text-muted: rgba(242, 240, 248, 0.62);
-
-  --color-neutral-100: #241a3d;
-  --color-neutral-300: #362a54;
-  --color-neutral-400: #4a3d6b;
-  --color-neutral-600: #b0a7cc;
-}
-
-:root[data-theme='dark'] .skeleton {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.18) 37%, rgba(255, 255, 255, 0.08) 63%);
-  background-size: 400% 100%;
-}
-
-:root[data-theme='dark'] .map-overlay {
-  background: rgba(23, 16, 43, 0.82);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -109,6 +85,7 @@ select,
 textarea,
 button {
   font-family: inherit;
+  color: inherit;
 }
 
 img,
@@ -185,8 +162,8 @@ svg {
   color: var(--color-dark-text-muted);
 }
 
-.screen-body--dark .btn-secondary,
-.screen-header .btn-secondary {
+.screen-body--dark .btn-secondary:not(.fav-toggle),
+.screen-header .btn-secondary:not(.fav-toggle) {
   background: var(--color-dark-surface);
   color: var(--color-dark-text);
   border-color: var(--color-dark-divider);

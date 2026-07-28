@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { accountInitials, profileName } from '../utils/account';
-import { ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon, MoonIcon } from '../components/icons';
+import { ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon } from '../components/icons';
 import { isPushSupported, getExistingPushSubscription, subscribeToPush, unsubscribeFromPush } from '../utils/push';
 import { savePushSubscription, deletePushSubscription } from '../api/pushApi';
 
 export default function ProfileScreen() {
-  const { state, toggleDarkMode, logout, goTo, deleteMyAccount } = useApp();
+  const { state, logout, goTo, deleteMyAccount } = useApp();
   const isNegocio = state.accountType === 'negocio';
   const accountLabel = isNegocio ? 'Cuenta negocio' : 'Cuenta personal';
 
@@ -86,23 +86,6 @@ export default function ProfileScreen() {
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </button>
-        <div className="profile-row" style={{ cursor: 'default' }}>
-          <div className="profile-row-left">
-            <MoonIcon size={18} />
-            <div>Modo oscuro</div>
-          </div>
-          <button
-            type="button"
-            className={`toggle-switch${state.darkMode ? ' is-on' : ''}`}
-            role="switch"
-            aria-checked={state.darkMode}
-            aria-label="Modo oscuro"
-            onClick={toggleDarkMode}
-          >
-            <span className="toggle-switch-knob" />
-          </button>
-        </div>
-
         {isPushSupported() && (
           <div className="profile-row" style={{ cursor: 'default', flexWrap: 'wrap', gap: 6 }}>
             <div className="profile-row-left">
