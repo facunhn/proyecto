@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { fetchMyPromos, fetchMyPromoStats, updatePromo, deletePromo } from '../api/promosApi';
 import { compressImage } from '../utils/image';
-import { isPastDate } from '../utils/date';
+import { isPastDate, isFutureDate } from '../utils/date';
 import SkeletonListItem from '../components/SkeletonListItem';
 
 const CATEGORY_OPTIONS = [
@@ -13,7 +13,7 @@ const CATEGORY_OPTIONS = [
   { value: 'Bancos', label: 'Promoción bancaria' },
 ];
 
-const EMPTY_DRAFT = { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', description: '' };
+const EMPTY_DRAFT = { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' };
 
 export default function PublishScreen() {
   const { state, setDraftField, submitDraft } = useApp();
@@ -71,6 +71,7 @@ export default function PublishScreen() {
     setDraftField('category', promo.category);
     setDraftField('discountLabel', promo.discountLabel);
     setDraftField('expiry', promo.expiresAt || '');
+    setDraftField('startsAt', promo.startsAt || '');
     setDraftField('description', promo.description);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -128,6 +129,19 @@ export default function PublishScreen() {
           <div className="field" style={{ flex: 1 }}>
             <label>Válido hasta</label>
             <input className="input" type="date" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} min={new Date().toISOString().slice(0, 10)} />
+          </div>
+        </div>
+        <div className="field">
+          <label>Publicar a partir de (opcional)</label>
+          <input
+            className="input"
+            type="date"
+            value={draft.startsAt}
+            onChange={(e) => setDraftField('startsAt', e.target.value)}
+            min={new Date().toISOString().slice(0, 10)}
+          />
+          <div className="text-muted" style={{ fontSize: 11 }}>
+            Dejalo vacío para que se vea apenas la publiqués, o elegí una fecha futura para que aparezca sola ese día.
           </div>
         </div>
         <div className="field">
@@ -193,6 +207,7 @@ export default function PublishScreen() {
           myPromos.map((p) => {
             const promoStats = stats[p.id];
             const expired = isPastDate(p.expiresAt);
+            const scheduled = isFutureDate(p.startsAt);
             return (
               <div key={p.id} className="published-row" style={{ flexWrap: 'wrap', gap: 6 }}>
                 <div style={{ flex: 1, minWidth: 160 }}>
@@ -225,6 +240,11 @@ export default function PublishScreen() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   {expired && <div className="tag" style={{ background: '#f3d6d6', color: '#8a2323' }}>VENCIDA</div>}
+                  {!expired && scheduled && (
+                    <div className="tag" style={{ background: '#dde6f7', color: '#2a4d8a' }}>
+                      PROGRAMADA {p.startsAt}
+                    </div>
+                  )}
                   <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => startEditing(p)}>
                     Editar
                   </button>

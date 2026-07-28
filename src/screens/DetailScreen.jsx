@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import QRCode from 'qrcode';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { recordRedemption } from '../api/redemptionsApi';
@@ -8,11 +9,22 @@ export default function DetailScreen() {
   const { state, goHome, toggleFav } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [redeemed, setRedeemed] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
 
   const promo = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
     return decorated.find((p) => p.id === state.selectedId) || decorated[0];
   }, [state.promos, state.favorites, coords, state.selectedId]);
+
+  useEffect(() => {
+    if (!promo?.code) {
+      setQrDataUrl(null);
+      return;
+    }
+    QRCode.toDataURL(promo.code, { margin: 1, width: 160 })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(null));
+  }, [promo?.code]);
 
   if (!promo) return null;
 
@@ -87,7 +99,8 @@ export default function DetailScreen() {
             <span style={{ fontWeight: 700 }}>{promo.redeemHint}</span>
           </div>
         </div>
-        <div className="detail-code">
+        <div className="detail-code" style={{ flexDirection: 'column', gap: 10 }}>
+          {qrDataUrl && <img src={qrDataUrl} alt={`Código QR para ${promo.code}`} width={120} height={120} />}
           <div className="detail-code-value" style={{ color: 'var(--color-text)' }}>
             {promo.code}
           </div>

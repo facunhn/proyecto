@@ -15,6 +15,7 @@ function mapRow(row) {
     description: row.description,
     expiry: row.expires_at ? formatShortDate(row.expires_at) : row.expiry || '',
     expiresAt: row.expires_at || null,
+    startsAt: row.starts_at || null,
     distance: row.is_bank ? 'Online' : '0.0 km',
     isBank: row.is_bank,
     code: row.code,
@@ -56,6 +57,7 @@ function draftToRow(draft) {
     discount_label: draft.discountLabel,
     description: draft.description,
     expires_at: draft.expiry || null,
+    starts_at: draft.startsAt || null,
     is_bank: isBank,
     redeem_hint: isBank ? 'Pagar con tarjeta adherida' : 'Mostrar código en caja',
   };
@@ -70,6 +72,7 @@ export async function fetchPromos() {
     .from('promos')
     .select('*')
     .or(`expires_at.is.null,expires_at.gte.${todayIso()}`)
+    .or(`starts_at.is.null,starts_at.lte.${todayIso()}`)
     .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data.map(mapRow);
@@ -111,6 +114,7 @@ export async function publishPromo(draft, photoFile) {
       discountLabel: draft.discountLabel,
       description: draft.description,
       expiry: draft.expiry,
+      startsAt: draft.startsAt || null,
       distance: '0.0 km',
       isBank: draft.category === 'Bancos',
       code: draft.businessName.slice(0, 4).toUpperCase() + Math.floor(Math.random() * 1000),

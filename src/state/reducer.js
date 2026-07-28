@@ -19,7 +19,7 @@ export const initialState = {
   favorites: [],
   selectedId: null,
 
-  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', description: '' },
+  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' },
   draftJustPublished: false,
   publishedPromos: [],
 
@@ -103,7 +103,7 @@ export function reducer(state, action) {
         ...state,
         publishedPromos: [action.promo, ...state.publishedPromos],
         promos: [action.promo, ...state.promos],
-        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', description: '' },
+        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' },
         draftJustPublished: true,
       };
 

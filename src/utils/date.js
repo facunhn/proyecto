@@ -12,3 +12,8 @@ export function isPastDate(isoDate) {
   if (!isoDate) return false;
   return isoDate < todayIso();
 }
+
+export function isFutureDate(isoDate) {
+  if (!isoDate) return false;
+  return isoDate > todayIso();
+}
