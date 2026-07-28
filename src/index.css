@@ -37,6 +37,30 @@
   --radius-md: 12px;
 }
 
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #17102b;
+  --color-surface: #241a3d;
+  --color-divider: rgba(255, 255, 255, 0.14);
+  --color-text: #f2f0f8;
+  --color-text-muted: rgba(242, 240, 248, 0.62);
+
+  --color-neutral-100: #241a3d;
+  --color-neutral-300: #362a54;
+  --color-neutral-400: #4a3d6b;
+  --color-neutral-600: #b0a7cc;
+}
+
+:root[data-theme='dark'] .skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.18) 37%, rgba(255, 255, 255, 0.08) 63%);
+  background-size: 400% 100%;
+}
+
+:root[data-theme='dark'] .map-overlay {
+  background: rgba(23, 16, 43, 0.82);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -285,6 +309,38 @@ textarea.input {
 .checkbox-box.is-checked {
   background: var(--color-accent);
   border-color: var(--color-accent);
+}
+
+.toggle-switch {
+  width: 44px;
+  height: 26px;
+  border-radius: 100px;
+  background: var(--color-neutral-400);
+  position: relative;
+  flex: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.toggle-switch.is-on {
+  background: var(--color-accent);
+}
+
+.toggle-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s;
+}
+
+.toggle-switch.is-on .toggle-switch-knob {
+  transform: translateX(18px);
 }
 
 .seg {
@@ -756,6 +812,71 @@ textarea.input {
   gap: 12px;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Stats */
+
+.stats-summary {
+  display: flex;
+  gap: 10px;
+  margin: 4px 0 6px;
+}
+
+.stats-summary-item {
+  flex: 1;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.stats-summary-value {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 19px;
+  color: var(--color-accent-700);
+}
+
+.stats-summary-label {
+  font-size: 10.5px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.stats-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.stats-bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--color-neutral-100);
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+}
+
+.stats-bar-fill--fav {
+  background: #e0577a;
+}
+
+.stats-bar-fill--redeem {
+  background: var(--color-accent);
+}
+
+.stats-bar-num {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  width: 16px;
+  text-align: right;
 }
 
 /* Publish */

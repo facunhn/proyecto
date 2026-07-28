@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { accountInitials, profileName } from '../utils/account';
-import { SwitchIcon, ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon } from '../components/icons';
+import { SwitchIcon, ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon, MoonIcon } from '../components/icons';
+import { isPushSupported, getExistingPushSubscription, subscribeToPush, unsubscribeFromPush } from '../utils/push';
+import { savePushSubscription, deletePushSubscription } from '../api/pushApi';
 
 export default function ProfileScreen() {
-  const { state, toggleAccount, logout, goTo, deleteMyAccount } = useApp();
+  const { state, toggleAccount, toggleDarkMode, logout, goTo, deleteMyAccount } = useApp();
   const isNegocio = state.accountType === 'negocio';
   const accountLabel = isNegocio ? 'Cuenta negocio' : 'Cuenta personal';
   const switchLabel = isNegocio ? 'cuenta personal' : 'cuenta negocio';
@@ -13,12 +15,44 @@ export default function ProfileScreen() {
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
 
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState(null);
+
+  useEffect(() => {
+    if (!isPushSupported()) return;
+    getExistingPushSubscription()
+      .then((sub) => setPushEnabled(!!sub))
+      .catch(() => {});
+  }, []);
+
   const handleDeleteAccount = async () => {
     if (confirmText.trim().toUpperCase() !== 'BORRAR') return;
     setDeleting(true);
     const ok = await deleteMyAccount();
     setDeleting(false);
     if (!ok) return;
+  };
+
+  const handleTogglePush = async () => {
+    if (pushBusy) return;
+    setPushError(null);
+    setPushBusy(true);
+    try {
+      if (pushEnabled) {
+        const sub = await unsubscribeFromPush();
+        if (sub) await deletePushSubscription(sub.endpoint);
+        setPushEnabled(false);
+      } else {
+        const sub = await subscribeToPush();
+        await savePushSubscription(sub);
+        setPushEnabled(true);
+      }
+    } catch (error) {
+      setPushError(error.message);
+    } finally {
+      setPushBusy(false);
+    }
   };
 
   return (
@@ -60,6 +94,46 @@ export default function ProfileScreen() {
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
         </button>
+        <div className="profile-row" style={{ cursor: 'default' }}>
+          <div className="profile-row-left">
+            <MoonIcon size={18} />
+            <div>Modo oscuro</div>
+          </div>
+          <button
+            type="button"
+            className={`toggle-switch${state.darkMode ? ' is-on' : ''}`}
+            role="switch"
+            aria-checked={state.darkMode}
+            aria-label="Modo oscuro"
+            onClick={toggleDarkMode}
+          >
+            <span className="toggle-switch-knob" />
+          </button>
+        </div>
+
+        {isPushSupported() && (
+          <div className="profile-row" style={{ cursor: 'default', flexWrap: 'wrap', gap: 6 }}>
+            <div className="profile-row-left">
+              <BellIcon size={18} />
+              <div>Avisos push en este dispositivo</div>
+            </div>
+            <button
+              type="button"
+              className={`toggle-switch${pushEnabled ? ' is-on' : ''}`}
+              role="switch"
+              aria-checked={pushEnabled}
+              aria-label="Avisos push en este dispositivo"
+              disabled={pushBusy}
+              onClick={handleTogglePush}
+            >
+              <span className="toggle-switch-knob" />
+            </button>
+            {pushError && (
+              <div style={{ width: '100%', fontSize: 11.5, color: '#c62828' }}>{pushError}</div>
+            )}
+          </div>
+        )}
+
         <div className="profile-row" role="button" tabIndex={0}>
           <div className="profile-row-left">
             <HelpIcon size={18} />

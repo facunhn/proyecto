@@ -26,6 +26,8 @@ export const initialState = {
   promos: [],
   promosLoading: true,
   promosError: null,
+
+  darkMode: false,
 };
 
 export function reducer(state, action) {
@@ -115,7 +117,7 @@ export function reducer(state, action) {
       return { ...state, geoStatus: 'denied' };
 
     case 'LOGOUT':
-      return { ...initialState, screen: 'login', promos: state.promos, promosLoading: false };
+      return { ...initialState, screen: 'login', promos: state.promos, promosLoading: false, darkMode: state.darkMode };
 
     case 'PROMOS_LOADING':
       return { ...state, promosLoading: true, promosError: null };
@@ -125,6 +127,9 @@ export function reducer(state, action) {
 
     case 'PROMOS_ERROR':
       return { ...state, promosLoading: false, promosError: action.error };
+
+    case 'SET_DARK_MODE':
+      return { ...state, darkMode: action.value };
 
     default:
       return state;

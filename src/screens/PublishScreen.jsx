@@ -29,6 +29,11 @@ export default function PublishScreen() {
   const draft = state.draft;
   const canSubmit = draft.businessName.trim() && draft.discountLabel.trim();
 
+  const statsValues = Object.values(stats);
+  const totalFavorites = statsValues.reduce((sum, s) => sum + s.favorites_count, 0);
+  const totalRedemptions = statsValues.reduce((sum, s) => sum + s.redemptions_count, 0);
+  const maxCount = Math.max(1, ...statsValues.map((s) => Math.max(s.favorites_count, s.redemptions_count)));
+
   const loadMyPromos = () => {
     setLoadingMyPromos(true);
     fetchMyPromos()
@@ -163,6 +168,26 @@ export default function PublishScreen() {
 
         <hr className="hr" style={{ margin: '8px 0 4px' }} />
         <div style={{ fontWeight: 700, fontSize: 13 }}>Mis promociones publicadas</div>
+
+        {!loadingMyPromos && myPromos.length > 0 && (
+          <div className="stats-summary">
+            <div className="stats-summary-item">
+              <div className="stats-summary-value">{myPromos.length}</div>
+              <div className="stats-summary-label">Promos activas</div>
+            </div>
+            <div className="stats-summary-item">
+              <div className="stats-summary-value" style={{ color: '#e0577a' }}>
+                {totalFavorites}
+              </div>
+              <div className="stats-summary-label">Guardados totales</div>
+            </div>
+            <div className="stats-summary-item">
+              <div className="stats-summary-value">{totalRedemptions}</div>
+              <div className="stats-summary-label">Canjes totales</div>
+            </div>
+          </div>
+        )}
+
         {loadingMyPromos && [1, 2].map((i) => <SkeletonListItem key={i} />)}
         {!loadingMyPromos &&
           myPromos.map((p) => {
@@ -170,14 +195,31 @@ export default function PublishScreen() {
             const expired = isPastDate(p.expiresAt);
             return (
               <div key={p.id} className="published-row" style={{ flexWrap: 'wrap', gap: 6 }}>
-                <div>
+                <div style={{ flex: 1, minWidth: 160 }}>
                   <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.business}</div>
                   <div className="text-muted" style={{ fontSize: 11.5, marginTop: 2 }}>
                     {p.category} · {p.discountLabel}
                   </div>
                   {promoStats && (
-                    <div className="text-muted" style={{ fontSize: 11, marginTop: 4 }}>
-                      ❤ {promoStats.favorites_count} guardados · {promoStats.redemptions_count} canjes
+                    <div style={{ marginTop: 6, maxWidth: 220 }}>
+                      <div className="stats-bar-row">
+                        <div className="stats-bar-track">
+                          <div
+                            className="stats-bar-fill stats-bar-fill--fav"
+                            style={{ width: `${Math.min(100, (promoStats.favorites_count / maxCount) * 100)}%` }}
+                          />
+                        </div>
+                        <div className="stats-bar-num">{promoStats.favorites_count}</div>
+                      </div>
+                      <div className="stats-bar-row">
+                        <div className="stats-bar-track">
+                          <div
+                            className="stats-bar-fill stats-bar-fill--redeem"
+                            style={{ width: `${Math.min(100, (promoStats.redemptions_count / maxCount) * 100)}%` }}
+                          />
+                        </div>
+                        <div className="stats-bar-num">{promoStats.redemptions_count}</div>
+                      </div>
                     </div>
                   )}
                 </div>

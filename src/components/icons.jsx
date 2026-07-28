@@ -135,6 +135,14 @@ export function LogoutIcon(props) {
   );
 }
 
+export function MoonIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+    </Icon>
+  );
+}
+
 export function AhorrixMark({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100">
