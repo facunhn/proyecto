@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { accountInitials, profileName } from '../utils/account';
-import { SwitchIcon, ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon, MoonIcon } from '../components/icons';
+import { ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon, MoonIcon } from '../components/icons';
 import { isPushSupported, getExistingPushSubscription, subscribeToPush, unsubscribeFromPush } from '../utils/push';
 import { savePushSubscription, deletePushSubscription } from '../api/pushApi';
 
 export default function ProfileScreen() {
-  const { state, toggleAccount, toggleDarkMode, logout, goTo, deleteMyAccount } = useApp();
+  const { state, toggleDarkMode, logout, goTo, deleteMyAccount } = useApp();
   const isNegocio = state.accountType === 'negocio';
   const accountLabel = isNegocio ? 'Cuenta negocio' : 'Cuenta personal';
-  const switchLabel = isNegocio ? 'cuenta personal' : 'cuenta negocio';
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmText, setConfirmText] = useState('');
@@ -65,34 +64,27 @@ export default function ProfileScreen() {
         </div>
       </div>
 
-      <div className="screen-body">
-        <button type="button" className="profile-row" onClick={toggleAccount}>
-          <div className="profile-row-left">
-            <SwitchIcon size={18} />
-            <div>Cambiar a {switchLabel}</div>
-          </div>
-          <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
-        </button>
+      <div className="screen-body screen-body--dark">
         <button type="button" className="profile-row" onClick={() => goTo('editProfile')}>
           <div className="profile-row-left">
             <ProfileIcon size={18} />
             <div>Mis datos</div>
           </div>
-          <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
+          <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </button>
         <button type="button" className="profile-row" onClick={() => goTo('redemptions')}>
           <div className="profile-row-left">
             <HistoryIcon size={18} />
             <div>Historial de canjes</div>
           </div>
-          <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
+          <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </button>
         <button type="button" className="profile-row" onClick={() => goTo('notifications')}>
           <div className="profile-row-left">
             <BellIcon size={18} />
             <div>Notificaciones</div>
           </div>
-          <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
+          <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </button>
         <div className="profile-row" style={{ cursor: 'default' }}>
           <div className="profile-row-left">
@@ -139,11 +131,11 @@ export default function ProfileScreen() {
             <HelpIcon size={18} />
             <div>Ayuda</div>
           </div>
-          <ChevronRightIcon size={16} style={{ color: 'var(--color-neutral-600)' }} />
+          <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </div>
         <button type="button" className="profile-row" style={{ padding: '18px 0', gap: 12 }} onClick={logout}>
-          <div className="profile-row-left" style={{ color: 'var(--color-accent-700)' }}>
-            <LogoutIcon size={18} style={{ color: 'var(--color-accent-700)' }} />
+          <div className="profile-row-left" style={{ color: 'var(--color-accent-400)' }}>
+            <LogoutIcon size={18} style={{ color: 'var(--color-accent-400)' }} />
             <div style={{ fontWeight: 700 }}>Cerrar sesión</div>
           </div>
         </button>

@@ -20,20 +20,6 @@ describe('reducer', () => {
     expect(next.authSubmitting).toBe(false);
   });
 
-  it('sends the user back to home when switching off "negocio" while on the publish screen', () => {
-    const negocioOnPublish = { ...initialState, accountType: 'negocio', screen: 'publish' };
-    const next = reducer(negocioOnPublish, { type: 'TOGGLE_ACCOUNT' });
-    expect(next.accountType).toBe('persona');
-    expect(next.screen).toBe('home');
-  });
-
-  it('keeps the current screen when switching to "negocio"', () => {
-    const personaOnFavorites = { ...initialState, accountType: 'persona', screen: 'favorites' };
-    const next = reducer(personaOnFavorites, { type: 'TOGGLE_ACCOUNT' });
-    expect(next.accountType).toBe('negocio');
-    expect(next.screen).toBe('favorites');
-  });
-
   it('adds a published promo to both publishedPromos and promos, and resets the draft', () => {
     const draftedState = { ...initialState, draft: { businessName: 'Café Test', category: 'Gastronomía', discountLabel: '15% OFF', expiry: '', description: '' } };
     const promo = { id: 99, business: 'Café Test', category: 'Gastronomía', discountLabel: '15% OFF' };

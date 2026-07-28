@@ -1,5 +1,6 @@
 import { useApp } from '../state/AppContext';
 import Logo from '../components/Logo';
+import PasswordField from '../components/PasswordField';
 
 const NEGOCIO_CATEGORIES = ['Gastronomía', 'Retail', 'Supermercados', 'Farmacias', 'Bancos'];
 
@@ -71,10 +72,7 @@ export default function SignupScreen() {
           <label>Email</label>
           <input className="input" type="email" value={form.email} onChange={(e) => setSignupField('email', e.target.value)} placeholder="tu@email.com" />
         </div>
-        <div className="field">
-          <label>Contraseña</label>
-          <input className="input" type="password" value={form.password} onChange={(e) => setSignupField('password', e.target.value)} placeholder="••••••••" />
-        </div>
+        <PasswordField label="Contraseña" value={form.password} onChange={(e) => setSignupField('password', e.target.value)} placeholder="••••••••" />
         {state.authError && <div style={{ color: '#ff9d9d', fontSize: 12.5 }}>{state.authError}</div>}
         <button type="submit" className="btn btn-primary btn-block" disabled={!canSubmit || state.authSubmitting}>
           {state.authSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}

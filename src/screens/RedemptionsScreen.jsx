@@ -21,18 +21,18 @@ export default function RedemptionsScreen() {
 
   return (
     <div className="screen">
-      <div className="screen-header screen-header--plain" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="screen-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <button type="button" className="btn btn-icon btn-secondary" onClick={() => goTo('profile')} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
         <div>
-          <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>Historial de canjes</h4>
+          <h4 style={{ marginBottom: 4 }}>Historial de canjes</h4>
           <div className="text-muted">Promociones que ya mostraste en un local</div>
         </div>
       </div>
 
-      <div className="screen-body">
-        {loading && [1, 2, 3].map((i) => <SkeletonListItem key={i} />)}
+      <div className="screen-body screen-body--dark">
+        {loading && [1, 2, 3].map((i) => <SkeletonListItem key={i} dark />)}
         {!loading &&
           redemptions.map((r) => (
             <div key={r.id} className="published-row">
@@ -48,7 +48,7 @@ export default function RedemptionsScreen() {
             </div>
           ))}
         {!loading && redemptions.length === 0 && (
-          <div className="empty-state" style={{ padding: '60px 20px' }}>
+          <div className="empty-state empty-state--dark" style={{ padding: '60px 20px' }}>
             Todavía no canjeaste ninguna promoción.
             <br />
             <br />

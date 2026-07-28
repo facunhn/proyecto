@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../state/AppContext';
 import Logo from '../components/Logo';
+import PasswordField from '../components/PasswordField';
 
 export default function ResetPasswordScreen() {
   const { state, submitPasswordReset } = useApp();
@@ -25,14 +26,8 @@ export default function ResetPasswordScreen() {
         Escribila dos veces para confirmar que no te equivocaste
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div className="field">
-          <label>Nueva contraseña</label>
-          <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
-        </div>
-        <div className="field">
-          <label>Confirmar contraseña</label>
-          <input className="input" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
-        </div>
+        <PasswordField label="Nueva contraseña" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+        <PasswordField label="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
         {confirmPassword && !passwordsMatch && <div style={{ color: '#ff9d9d', fontSize: 12.5 }}>Las contraseñas no coinciden.</div>}
         {state.authError && <div style={{ color: '#ff9d9d', fontSize: 12.5 }}>{state.authError}</div>}
         <button type="submit" className="btn btn-primary btn-block" disabled={!canSubmit || state.authSubmitting}>

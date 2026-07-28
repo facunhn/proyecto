@@ -162,6 +162,36 @@ svg {
   color: var(--color-dark-text);
 }
 
+.screen-header .text-muted {
+  color: var(--color-dark-text-muted);
+}
+
+.screen-body--dark .text-muted,
+.screen-body--dark .field label {
+  color: var(--color-dark-text-muted);
+}
+
+.screen-body--dark .profile-row,
+.screen-body--dark .published-row {
+  border-bottom-color: var(--color-dark-divider);
+}
+
+.screen-body--dark .hr {
+  border-top-color: var(--color-dark-divider);
+}
+
+.screen-body--dark .dropzone {
+  border-color: var(--color-dark-divider);
+  color: var(--color-dark-text-muted);
+}
+
+.screen-body--dark .btn-secondary,
+.screen-header .btn-secondary {
+  background: var(--color-dark-surface);
+  color: var(--color-dark-text);
+  border-color: var(--color-dark-divider);
+}
+
 .screen-body {
   padding: 16px 20px 96px;
   flex: 1;
@@ -947,6 +977,36 @@ textarea.input {
   bottom: 0;
   padding: 6px 20px 16px;
   background: var(--color-brand-violet);
+}
+
+.qr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.qr-modal-close {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #ffffff;
+  z-index: 101;
+}
+
+.qr-modal-card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
 }
 
 /* Nearby */

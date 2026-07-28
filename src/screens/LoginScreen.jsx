@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../state/AppContext';
 import Logo from '../components/Logo';
+import PasswordField from '../components/PasswordField';
 
 export default function LoginScreen() {
   const { state, setLoginField, submitLogin, skipAuth, goTo, sendPasswordReset } = useApp();
@@ -78,10 +79,7 @@ export default function LoginScreen() {
           <label>Email</label>
           <input className="input" type="email" value={email} onChange={(e) => setLoginField('email', e.target.value)} placeholder="tu@email.com" />
         </div>
-        <div className="field">
-          <label>Contraseña</label>
-          <input className="input" type="password" value={password} onChange={(e) => setLoginField('password', e.target.value)} placeholder="••••••••" />
-        </div>
+        <PasswordField label="Contraseña" value={password} onChange={(e) => setLoginField('password', e.target.value)} placeholder="••••••••" />
         <button type="button" className="auth-footer-link" style={{ textAlign: 'right', fontSize: 12.5 }} onClick={openForgotMode}>
           ¿Olvidaste tu contraseña?
         </button>

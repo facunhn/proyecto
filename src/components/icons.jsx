@@ -143,6 +143,35 @@ export function MoonIcon(props) {
   );
 }
 
+export function CloseIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
+    </Icon>
+  );
+}
+
+export function EyeIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
+  );
+}
+
+export function EyeOffIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a20.3 20.3 0 015.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 7 11 7a20.3 20.3 0 01-2.66 3.79" />
+      <path d="M14.12 14.12a3 3 0 11-4.24-4.24" />
+      <path d="M1 1l22 22" />
+    </Icon>
+  );
+}
+
 export function AhorrixMark({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100">

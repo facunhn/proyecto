@@ -37,6 +37,21 @@ export function AppProvider({ children }) {
     stateRef.current = state;
   }, [state]);
 
+  const handledRedeemRef = useRef(false);
+  useEffect(() => {
+    if (state.promosLoading || handledRedeemRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('redeem');
+    if (code) {
+      handledRedeemRef.current = true;
+      const match = state.promos.find((p) => p.code === code);
+      if (match) dispatch({ type: 'OPEN_DETAIL', id: match.id });
+      const url = new URL(window.location.href);
+      url.searchParams.delete('redeem');
+      window.history.replaceState({}, '', url);
+    }
+  }, [state.promosLoading, state.promos]);
+
   useEffect(() => {
     loadPromos(dispatch);
   }, []);
@@ -93,11 +108,6 @@ export function AppProvider({ children }) {
       },
 
       skipAuth: () => dispatch({ type: 'SKIP_AUTH' }),
-      toggleAccount: () => {
-        const nextType = stateRef.current.accountType === 'negocio' ? 'persona' : 'negocio';
-        dispatch({ type: 'TOGGLE_ACCOUNT' });
-        if (stateRef.current.session) updateProfile({ accountType: nextType }).catch(() => {});
-      },
 
       setHomeCategory: (category) => dispatch({ type: 'SET_HOME_CATEGORY', category }),
       setSearchQuery: (query) => dispatch({ type: 'SET_SEARCH_QUERY', query }),

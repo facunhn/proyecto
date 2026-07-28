@@ -101,12 +101,12 @@ export default function PublishScreen() {
 
   return (
     <div className="screen">
-      <div className="screen-header screen-header--plain">
-        <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>{editingId ? 'Editar promoción' : 'Publicar promoción'}</h4>
+      <div className="screen-header">
+        <h4 style={{ marginBottom: 4 }}>{editingId ? 'Editar promoción' : 'Publicar promoción'}</h4>
         <div className="text-muted">Como comercio, creá o actualizá una oferta</div>
       </div>
 
-      <div className="screen-body" style={{ gap: 14 }}>
+      <div className="screen-body screen-body--dark" style={{ gap: 14 }}>
         <div className="field">
           <label>Nombre del comercio</label>
           <input className="input" value={draft.businessName} onChange={(e) => setDraftField('businessName', e.target.value)} placeholder="Ej: Panadería Norte" />
@@ -177,7 +177,7 @@ export default function PublishScreen() {
           </button>
         )}
         {state.draftJustPublished && !editingId && (
-          <div style={{ textAlign: 'center', color: 'var(--color-accent-700)', fontSize: 12.5, fontWeight: 700 }}>Promoción publicada con éxito</div>
+          <div style={{ textAlign: 'center', color: 'var(--color-accent-400)', fontSize: 12.5, fontWeight: 700 }}>Promoción publicada con éxito</div>
         )}
 
         <hr className="hr" style={{ margin: '8px 0 4px' }} />
@@ -202,7 +202,7 @@ export default function PublishScreen() {
           </div>
         )}
 
-        {loadingMyPromos && [1, 2].map((i) => <SkeletonListItem key={i} />)}
+        {loadingMyPromos && [1, 2].map((i) => <SkeletonListItem key={i} dark />)}
         {!loadingMyPromos &&
           myPromos.map((p) => {
             const promoStats = stats[p.id];
@@ -255,7 +255,7 @@ export default function PublishScreen() {
               </div>
             );
           })}
-        {!loadingMyPromos && myPromos.length === 0 && <div className="empty-state">Todavía no publicaste ninguna promoción.</div>}
+        {!loadingMyPromos && myPromos.length === 0 && <div className="empty-state empty-state--dark">Todavía no publicaste ninguna promoción.</div>}
       </div>
     </div>
   );

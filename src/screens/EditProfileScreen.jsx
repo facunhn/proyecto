@@ -25,17 +25,17 @@ export default function EditProfileScreen() {
 
   return (
     <div className="screen">
-      <div className="screen-header screen-header--plain" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="screen-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <button type="button" className="btn btn-icon btn-secondary" onClick={() => goTo('profile')} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
         <div>
-          <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>Mis datos</h4>
+          <h4 style={{ marginBottom: 4 }}>Mis datos</h4>
           <div className="text-muted">Actualizá tu información de contacto</div>
         </div>
       </div>
 
-      <div className="screen-body" style={{ gap: 14 }}>
+      <div className="screen-body screen-body--dark" style={{ gap: 14 }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="field">
             <label>{isNegocio ? 'Nombre del comercio' : 'Nombre'}</label>
@@ -66,7 +66,7 @@ export default function EditProfileScreen() {
             <input className="input" value={session.email || ''} disabled style={{ opacity: 0.6 }} />
           </div>
           {state.authError && <div style={{ color: '#c62828', fontSize: 12.5 }}>{state.authError}</div>}
-          {saved && <div style={{ color: 'var(--color-accent-700)', fontSize: 12.5, fontWeight: 700 }}>Datos guardados correctamente.</div>}
+          {saved && <div style={{ color: 'var(--color-accent-400)', fontSize: 12.5, fontWeight: 700 }}>Datos guardados correctamente.</div>}
           <button type="submit" className="btn btn-primary btn-block" disabled={state.authSubmitting}>
             {state.authSubmitting ? 'Guardando…' : 'Guardar cambios'}
           </button>

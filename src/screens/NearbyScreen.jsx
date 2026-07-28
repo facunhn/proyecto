@@ -25,8 +25,8 @@ export default function NearbyScreen() {
 
   return (
     <div className="screen">
-      <div className="screen-header screen-header--plain">
-        <h4 style={{ marginBottom: 4, color: 'var(--color-text)' }}>Lugares cercanos</h4>
+      <div className="screen-header">
+        <h4 style={{ marginBottom: 4 }}>Lugares cercanos</h4>
         <div className="text-muted">Geolocalizador de promociones a tu alrededor</div>
       </div>
 
@@ -56,16 +56,16 @@ export default function NearbyScreen() {
         )}
       </div>
 
-      <div className="screen-body">
+      <div className="screen-body screen-body--dark">
         {state.promosLoading ? (
-          [1, 2, 3].map((i) => <SkeletonListItem key={i} />)
+          [1, 2, 3].map((i) => <SkeletonListItem key={i} dark />)
         ) : (
           <>
             <div className="text-muted" style={{ marginBottom: 10 }}>
               {state.geoStatus === 'granted' ? 'Ordenado por distancia real a tu ubicación' : 'Activá el geolocalizador para ver distancias reales'}
             </div>
             {nearby.slice(0, 6).map((p) => (
-              <PromoListItem key={p.id} promo={p} onOpen={openDetail} />
+              <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
             ))}
           </>
         )}

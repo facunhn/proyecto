@@ -31,19 +31,19 @@ export default function NotificationsScreen() {
 
   return (
     <div className="screen">
-      <div className="screen-header screen-header--plain" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="screen-header" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <button type="button" className="btn btn-icon btn-secondary" onClick={() => goTo('home')} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
-        <h4 style={{ color: 'var(--color-text)' }}>Notificaciones</h4>
+        <h4>Notificaciones</h4>
       </div>
 
-      <div className="screen-body">
+      <div className="screen-body screen-body--dark">
         {loading &&
           [1, 2, 3].map((i) => (
             <div key={i} className="published-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
-              <div className="skeleton" style={{ height: 13, width: '85%' }} />
-              <div className="skeleton" style={{ height: 11, width: '35%' }} />
+              <div className="skeleton skeleton--dark" style={{ height: 13, width: '85%' }} />
+              <div className="skeleton skeleton--dark" style={{ height: 11, width: '35%' }} />
             </div>
           ))}
         {!loading &&
@@ -55,7 +55,7 @@ export default function NotificationsScreen() {
               </div>
             </div>
           ))}
-        {!loading && notifications.length === 0 && <div className="empty-state">No tenés notificaciones todavía.</div>}
+        {!loading && notifications.length === 0 && <div className="empty-state empty-state--dark">No tenés notificaciones todavía.</div>}
       </div>
     </div>
   );

@@ -43,6 +43,11 @@ export async function signup(form) {
     },
   });
   if (error) throw new Error(error.message);
+  // Supabase no devuelve un error acá cuando el email ya tiene cuenta (para no revelar
+  // qué emails existen): en ese caso "identities" viene vacío en vez de tirar error.
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    throw new Error('Ese email ya tiene una cuenta. Iniciá sesión en cambio.');
+  }
   return { user: mapSupabaseUser(data.user) };
 }
 

@@ -3,13 +3,14 @@ import QRCode from 'qrcode';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { recordRedemption } from '../api/redemptionsApi';
-import { ChevronLeftIcon, HeartIcon, ShareIcon } from '../components/icons';
+import { ChevronLeftIcon, HeartIcon, ShareIcon, CloseIcon } from '../components/icons';
 
 export default function DetailScreen() {
   const { state, goHome, toggleFav } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [redeemed, setRedeemed] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const promo = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
@@ -21,7 +22,8 @@ export default function DetailScreen() {
       setQrDataUrl(null);
       return;
     }
-    QRCode.toDataURL(promo.code, { margin: 1, width: 160 })
+    const redeemUrl = `${window.location.origin}${window.location.pathname}?redeem=${encodeURIComponent(promo.code)}`;
+    QRCode.toDataURL(redeemUrl, { margin: 1, width: 260 })
       .then(setQrDataUrl)
       .catch(() => setQrDataUrl(null));
   }, [promo?.code]);
@@ -32,6 +34,7 @@ export default function DetailScreen() {
 
   const handleShowCode = () => {
     setRedeemed(true);
+    setShowQrModal(true);
     recordRedemption(promo.id);
   };
 
@@ -99,8 +102,7 @@ export default function DetailScreen() {
             <span style={{ fontWeight: 700 }}>{promo.redeemHint}</span>
           </div>
         </div>
-        <div className="detail-code" style={{ flexDirection: 'column', gap: 10 }}>
-          {qrDataUrl && <img src={qrDataUrl} alt={`Código QR para ${promo.code}`} width={120} height={120} />}
+        <div className="detail-code">
           <div className="detail-code-value" style={{ color: 'var(--color-text)' }}>
             {promo.code}
           </div>
@@ -112,6 +114,28 @@ export default function DetailScreen() {
           {redeemed ? '✓ Código mostrado' : 'Mostrar código en el local'}
         </button>
       </div>
+
+      {showQrModal && (
+        <div className="qr-modal-overlay" onClick={() => setShowQrModal(false)}>
+          <button
+            type="button"
+            className="btn btn-icon qr-modal-close"
+            onClick={() => setShowQrModal(false)}
+            aria-label="Cerrar"
+          >
+            <CloseIcon size={18} strokeWidth="2.2" style={{ color: '#1a1330' }} />
+          </button>
+          <div className="qr-modal-card" onClick={(e) => e.stopPropagation()}>
+            {qrDataUrl && <img src={qrDataUrl} alt={`Código QR para ${promo.code}`} width={220} height={220} />}
+            <div className="detail-code-value" style={{ color: '#1a1330', marginTop: 14 }}>
+              {promo.code}
+            </div>
+            <div className="text-muted" style={{ marginTop: 6, textAlign: 'center' }}>
+              Mostrale esto al local para canjear tu promoción
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -63,12 +63,6 @@ export function reducer(state, action) {
     case 'SKIP_AUTH':
       return { ...state, screen: 'home' };
 
-    case 'TOGGLE_ACCOUNT': {
-      const nextType = state.accountType === 'negocio' ? 'persona' : 'negocio';
-      const screen = nextType === 'persona' && state.screen === 'publish' ? 'home' : state.screen;
-      return { ...state, accountType: nextType, screen };
-    }
-
     case 'SET_HOME_CATEGORY':
       return { ...state, homeCategory: action.category };
 
