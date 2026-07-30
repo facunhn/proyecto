@@ -9,12 +9,18 @@ export function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.asin(Math.sqrt(a));
 }
 
+export function promoLatLon(p) {
+  if (p.lat != null && p.lon != null) return { lat: p.lat, lon: p.lon };
+  return { lat: BASE_LAT + (p.dLat ?? 0), lon: BASE_LON + (p.dLon ?? 0) };
+}
+
 export function decoratePromos(promos, { favorites, coords }) {
   const decorated = promos.map((p) => {
     let distance = p.distance;
     let distanceKm = p.isBank ? Infinity : parseFloat(p.distance);
     if (!p.isBank && coords) {
-      distanceKm = haversineKm(coords.lat, coords.lon, BASE_LAT + (p.dLat ?? 0), BASE_LON + (p.dLon ?? 0));
+      const { lat, lon } = promoLatLon(p);
+      distanceKm = haversineKm(coords.lat, coords.lon, lat, lon);
       distance = `${distanceKm.toFixed(1)} km`;
     }
     return {

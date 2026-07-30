@@ -61,9 +61,13 @@ export default function SignupScreen() {
                 <input className="input" value={form.address} onChange={(e) => setSignupField('address', e.target.value)} placeholder="Calle y número" />
               </div>
               <div className="field" style={{ flex: 1 }}>
-                <label>Teléfono</label>
-                <input className="input" value={form.phone} onChange={(e) => setSignupField('phone', e.target.value)} placeholder="Ej: 11 5555-5555" />
+                <label>Ciudad</label>
+                <input className="input" value={form.city} onChange={(e) => setSignupField('city', e.target.value)} placeholder="Ej: Buenos Aires" />
               </div>
+            </div>
+            <div className="field">
+              <label>Teléfono</label>
+              <input className="input" value={form.phone} onChange={(e) => setSignupField('phone', e.target.value)} placeholder="Ej: 11 5555-5555" />
             </div>
           </>
         )}

@@ -10,6 +10,7 @@ function mapSupabaseUser(user) {
     accountType: meta.accountType || 'persona',
     category: meta.category || '',
     address: meta.address || '',
+    city: meta.city || '',
     phone: meta.phone || '',
   };
 }
@@ -38,6 +39,7 @@ export async function signup(form) {
         accountType: form.accountType,
         category: form.category,
         address: form.address,
+        city: form.city,
         phone: form.phone,
       },
     },

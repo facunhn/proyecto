@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos, sortPromos } from '../utils/promos';
 import PromoListItem from '../components/PromoListItem';
@@ -10,6 +10,11 @@ export default function NearbyScreen() {
   const { state, openDetail, requestLocation } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [sortBy, setSortBy] = useState('distancia');
+
+  useEffect(() => {
+    if (state.geoStatus === 'idle') requestLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const nearby = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });

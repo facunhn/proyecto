@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BASE_LAT, BASE_LON } from '../api/mockData';
+import { promoLatLon } from '../utils/promos';
 
 const pinIcon = L.divIcon({
   className: '',
@@ -47,8 +48,7 @@ export default function PromoMap({ promos, coords, onOpen }) {
     }
 
     promos.forEach((p) => {
-      const lat = BASE_LAT + (p.dLat ?? 0);
-      const lon = BASE_LON + (p.dLon ?? 0);
+      const { lat, lon } = promoLatLon(p);
       const marker = L.marker([lat, lon], { icon: pinIcon }).addTo(map);
       marker.on('click', () => onOpen(p.id));
       marker.bindTooltip(p.business, { direction: 'top', offset: [0, -24] });

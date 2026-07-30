@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react';
 import { reducer, initialState } from './reducer';
 import { fetchPromos, publishPromo, deleteAllMyPromoPhotos } from '../api/promosApi';
 import {
@@ -15,6 +15,8 @@ import {
 import { fetchFavoriteIds, addFavorite, removeFavorite } from '../api/favoritesApi';
 
 const AppContext = createContext(null);
+
+const PROTECTED_SCREENS = ['favorites', 'publish', 'profile', 'editProfile', 'redemptions', 'notifications'];
 
 function loadPromos(dispatch) {
   dispatch({ type: 'PROMOS_LOADING' });
@@ -36,6 +38,13 @@ export function AppProvider({ children }) {
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useLayoutEffect(() => {
+    if (!localStorage.getItem('ahorrix-onboarded')) {
+      dispatch({ type: 'SET_SCREEN', screen: 'onboarding' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handledRedeemRef = useRef(false);
   useEffect(() => {
@@ -71,8 +80,24 @@ export function AppProvider({ children }) {
     () => ({
       retryLoadPromos: () => loadPromos(dispatch),
 
-      goTo: (screen) => dispatch({ type: 'SET_SCREEN', screen }),
+      goTo: (screen) => {
+        if (PROTECTED_SCREENS.includes(screen) && !stateRef.current.session) {
+          dispatch({ type: 'SET_SCREEN', screen: 'login' });
+          return;
+        }
+        dispatch({ type: 'SET_SCREEN', screen });
+      },
       goHome: () => dispatch({ type: 'SET_SCREEN', screen: 'home' }),
+
+      requireAuth: () => {
+        if (!stateRef.current.session) {
+          dispatch({ type: 'SET_SCREEN', screen: 'login' });
+          return false;
+        }
+        return true;
+      },
+
+      skipAuth: () => dispatch({ type: 'SKIP_AUTH' }),
 
       setLoginField: (field, value) => dispatch({ type: 'SET_LOGIN_FIELD', field, value }),
       setSignupField: (field, value) => dispatch({ type: 'SET_SIGNUP_FIELD', field, value }),
@@ -97,8 +122,6 @@ export function AppProvider({ children }) {
         }
       },
 
-      skipAuth: () => dispatch({ type: 'SKIP_AUTH' }),
-
       setHomeCategory: (category) => dispatch({ type: 'SET_HOME_CATEGORY', category }),
       setSearchQuery: (query) => dispatch({ type: 'SET_SEARCH_QUERY', query }),
       setSearchCategory: (category) => dispatch({ type: 'SET_SEARCH_CATEGORY', category }),
@@ -108,6 +131,10 @@ export function AppProvider({ children }) {
       openBusiness: (id) => dispatch({ type: 'OPEN_BUSINESS', id }),
       toggleFav: (id, e) => {
         if (e?.stopPropagation) e.stopPropagation();
+        if (!stateRef.current.session) {
+          dispatch({ type: 'SET_SCREEN', screen: 'login' });
+          return;
+        }
         const wasFav = stateRef.current.favorites.includes(id);
         dispatch({ type: 'TOGGLE_FAV', id });
         if (wasFav) removeFavorite(id);

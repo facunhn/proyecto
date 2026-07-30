@@ -12,13 +12,14 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(session.name || '');
   const [phone, setPhone] = useState(session.phone || '');
   const [address, setAddress] = useState(session.address || '');
+  const [city, setCity] = useState(session.city || '');
   const [category, setCategory] = useState(session.category || 'Gastronomía');
   const [saved, setSaved] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaved(false);
-    const fields = isNegocio ? { name, phone, address, category } : { name, phone, address };
+    const fields = isNegocio ? { name, phone, address, city, category } : { name, phone, address, city };
     const ok = await updateMyProfile(fields);
     if (ok) setSaved(true);
   };
@@ -56,6 +57,10 @@ export default function EditProfileScreen() {
           <div className="field">
             <label>Dirección</label>
             <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle y número" />
+          </div>
+          <div className="field">
+            <label>Ciudad</label>
+            <input className="input" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Buenos Aires" />
           </div>
           <div className="field">
             <label>Teléfono</label>

@@ -27,6 +27,11 @@ export default function HomeScreen() {
       .catch(() => {});
   }, [state.session]);
 
+  useEffect(() => {
+    if (state.geoStatus === 'idle') requestLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const feedPromos = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
     return decorated.filter((p) => state.homeCategory === 'Todos' || p.category === state.homeCategory);

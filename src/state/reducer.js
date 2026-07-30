@@ -4,7 +4,7 @@ export const initialState = {
   session: null,
 
   loginForm: { email: '', password: '' },
-  signupForm: { name: '', email: '', password: '', accountType: 'persona', category: 'Gastronomía', address: '', phone: '' },
+  signupForm: { name: '', email: '', password: '', accountType: 'persona', category: 'Gastronomía', address: '', city: '', phone: '' },
   authError: null,
   authSubmitting: false,
 
@@ -20,7 +20,7 @@ export const initialState = {
   selectedId: null,
   selectedBusinessId: null,
 
-  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '' },
+  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '', lat: null, lon: null },
   draftJustPublished: false,
   publishedPromos: [],
 
@@ -59,9 +59,6 @@ export function reducer(state, action) {
         screen: 'home',
       };
 
-    case 'SKIP_AUTH':
-      return { ...state, screen: 'home' };
-
     case 'SET_HOME_CATEGORY':
       return { ...state, homeCategory: action.category };
 
@@ -73,6 +70,9 @@ export function reducer(state, action) {
 
     case 'TOGGLE_BANK_ONLY':
       return { ...state, bankOnly: !state.bankOnly };
+
+    case 'SKIP_AUTH':
+      return { ...state, screen: 'home' };
 
     case 'OPEN_DETAIL':
       return { ...state, screen: 'detail', selectedId: action.id };
@@ -99,7 +99,7 @@ export function reducer(state, action) {
         ...state,
         publishedPromos: [action.promo, ...state.publishedPromos],
         promos: [action.promo, ...state.promos],
-        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '' },
+        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '', lat: null, lon: null },
         draftJustPublished: true,
       };
 

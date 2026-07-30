@@ -43,7 +43,7 @@ begin
     url := 'https://rsexmahwlbdvzuwdmocy.supabase.co/functions/v1/send-push',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer FACUNDONAHON110809'
+      'Authorization', 'Bearer TU_SECRETO_COMPARTIDO'
     ),
     body := jsonb_build_object(
       'user_id', new.user_id,

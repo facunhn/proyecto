@@ -17,8 +17,10 @@ import BusinessProfileScreen from './screens/BusinessProfileScreen';
 import HelpScreen from './screens/HelpScreen';
 import TermsScreen from './screens/TermsScreen';
 import PrivacyScreen from './screens/PrivacyScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
 
 const SCREENS = {
+  onboarding: OnboardingScreen,
   login: LoginScreen,
   signup: SignupScreen,
   resetPassword: ResetPasswordScreen,
@@ -38,7 +40,7 @@ const SCREENS = {
   privacy: PrivacyScreen,
 };
 
-const NO_NAV_SCREENS = ['login', 'signup', 'resetPassword'];
+const NO_NAV_SCREENS = ['onboarding', 'login', 'signup', 'resetPassword'];
 
 function AppShell() {
   const { state } = useApp();

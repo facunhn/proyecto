@@ -3,10 +3,12 @@ import QRCode from 'qrcode';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { recordRedemption } from '../api/redemptionsApi';
+import { downloadPromoReminder } from '../utils/calendar';
 import { ChevronLeftIcon, HeartIcon, ShareIcon, CloseIcon } from '../components/icons';
+import ReportButton from '../components/ReportButton';
 
 export default function DetailScreen() {
-  const { state, goHome, toggleFav, openBusiness } = useApp();
+  const { state, goHome, toggleFav, openBusiness, requireAuth } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [redeemed, setRedeemed] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState(null);
@@ -35,6 +37,7 @@ export default function DetailScreen() {
   const badgeLabel = promo.isBank ? 'BANCARIA' : promo.category.toUpperCase();
 
   const handleShowCode = async () => {
+    if (!requireAuth()) return;
     setRedeemError(null);
     try {
       await recordRedemption(promo.id);
@@ -162,6 +165,21 @@ export default function DetailScreen() {
           <div className="detail-code-value" style={{ color: 'var(--color-text)' }}>
             {promo.code}
           </div>
+        </div>
+
+        {promo.expiresAt && (
+          <button
+            type="button"
+            className="btn btn-secondary btn-block"
+            style={{ marginTop: 14 }}
+            onClick={() => downloadPromoReminder(promo)}
+          >
+            Agregar vencimiento a mi calendario
+          </button>
+        )}
+
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <ReportButton targetType="promo" targetId={promo.id} label="Reportar esta promoción" />
         </div>
       </div>
 

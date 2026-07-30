@@ -24,6 +24,8 @@ const EMPTY_DRAFT = {
   redemptionLimit: '',
   businessHours: '',
   description: '',
+  lat: null,
+  lon: null,
 };
 const MAX_PHOTOS = 4;
 
@@ -38,10 +40,34 @@ export default function PublishScreen() {
   const [stats, setStats] = useState({});
   const [timeseries, setTimeseries] = useState([]);
   const [loadingMyPromos, setLoadingMyPromos] = useState(true);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState(null);
   const fileInputRef = useRef(null);
 
   const draft = state.draft;
   const canSubmit = draft.businessName.trim() && draft.discountLabel.trim();
+  const hasLocation = draft.lat != null && draft.lon != null;
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Tu navegador no permite obtener la ubicación.');
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setDraftField('lat', pos.coords.latitude);
+        setDraftField('lon', pos.coords.longitude);
+        setLocating(false);
+      },
+      () => {
+        setLocationError('No pudimos acceder a tu ubicación. Revisá los permisos del navegador.');
+        setLocating(false);
+      },
+      { timeout: 8000 },
+    );
+  };
 
   const statsValues = Object.values(stats);
   const totalFavorites = statsValues.reduce((sum, s) => sum + s.favorites_count, 0);
@@ -101,7 +127,43 @@ export default function PublishScreen() {
     setDraftField('redemptionLimit', promo.redemptionLimit ? String(promo.redemptionLimit) : '');
     setDraftField('businessHours', promo.businessHours || '');
     setDraftField('description', promo.description);
+    setDraftField('lat', promo.lat ?? null);
+    setDraftField('lon', promo.lon ?? null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const duplicatePromo = (promo) => {
+    setEditingId(null);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+    setExistingPhotoUrls([]);
+    setDraftField('businessName', promo.business);
+    setDraftField('category', promo.category);
+    setDraftField('discountLabel', promo.discountLabel);
+    setDraftField('expiry', '');
+    setDraftField('startsAt', '');
+    setDraftField('redemptionLimit', promo.redemptionLimit ? String(promo.redemptionLimit) : '');
+    setDraftField('businessHours', promo.businessHours || '');
+    setDraftField('description', promo.description);
+    setDraftField('lat', null);
+    setDraftField('lon', null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDownloadCsv = () => {
+    const header = ['Comercio', 'Rubro', 'Descuento', 'Guardados', 'Canjes'];
+    const rows = myPromos.map((p) => {
+      const s = stats[p.id];
+      return [p.business, p.category, p.discountLabel, s?.favorites_count ?? 0, s?.redemptions_count ?? 0];
+    });
+    const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'estadisticas-ahorrix.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleDelete = async (id) => {
@@ -193,6 +255,18 @@ export default function PublishScreen() {
             onChange={(e) => setDraftField('businessHours', e.target.value)}
             placeholder="Ej: Lun a Sáb 9 a 20 hs"
           />
+        </div>
+        <div className="field">
+          <label>Ubicación del comercio</label>
+          <button type="button" className="btn btn-secondary btn-block" onClick={handleUseMyLocation} disabled={locating}>
+            {locating ? 'Buscando ubicación…' : hasLocation ? 'Ubicación guardada ✓ (tocá para actualizarla)' : 'Usar mi ubicación actual'}
+          </button>
+          <div className="text-muted" style={{ fontSize: 11, marginTop: 4 }}>
+            {hasLocation
+              ? 'Los clientes verán la distancia real desde donde estén hasta tu local.'
+              : 'Parate en tu local y tocá el botón para que la promo aparezca en el mapa y con la distancia real.'}
+          </div>
+          {locationError && <div style={{ color: '#ff9d9d', fontSize: 12, marginTop: 4 }}>{locationError}</div>}
         </div>
         <div className="field">
           <label>Descripción</label>
@@ -290,6 +364,12 @@ export default function PublishScreen() {
           </div>
         )}
 
+        {!loadingMyPromos && myPromos.length > 0 && (
+          <button type="button" className="auth-footer-link" style={{ fontSize: 12, alignSelf: 'flex-start', marginTop: -4 }} onClick={handleDownloadCsv}>
+            Descargar estadísticas (CSV)
+          </button>
+        )}
+
         {!loadingMyPromos && timeseries.length > 0 && (
           <div style={{ marginBottom: 6 }}>
             <div className="text-muted" style={{ fontSize: 11 }}>
@@ -342,6 +422,9 @@ export default function PublishScreen() {
                       PROGRAMADA {p.startsAt}
                     </div>
                   )}
+                  <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => duplicatePromo(p)}>
+                    Duplicar
+                  </button>
                   <button type="button" className="auth-footer-link" style={{ fontSize: 12 }} onClick={() => startEditing(p)}>
                     Editar
                   </button>

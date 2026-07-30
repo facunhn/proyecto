@@ -4,10 +4,11 @@ import { decoratePromos } from '../utils/promos';
 import { fetchBusinessReviews, fetchMyReviewFor, submitBusinessReview } from '../api/businessReviewsApi';
 import PromoListItem from '../components/PromoListItem';
 import StarRating from '../components/StarRating';
+import ReportButton from '../components/ReportButton';
 import { ChevronLeftIcon } from '../components/icons';
 
 export default function BusinessProfileScreen() {
-  const { state, goHome, openDetail } = useApp();
+  const { state, goHome, openDetail, requireAuth } = useApp();
   const businessId = state.selectedBusinessId;
   const coords = state.geoStatus === 'granted' ? state.coords : null;
 
@@ -49,6 +50,7 @@ export default function BusinessProfileScreen() {
 
   const handleSubmitReview = async () => {
     if (!myRating) return;
+    if (!requireAuth()) return;
     setSaving(true);
     setError(null);
     setSaved(false);
@@ -116,6 +118,9 @@ export default function BusinessProfileScreen() {
             <div key={r.id} className="published-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4 }}>
               <StarRating value={r.rating} size={13} />
               {r.comment && <div style={{ fontSize: 13 }}>{r.comment}</div>}
+              <div>
+                <ReportButton targetType="review" targetId={r.id} label="Reportar reseña" />
+              </div>
             </div>
           ))}
 

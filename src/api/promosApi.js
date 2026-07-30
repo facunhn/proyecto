@@ -27,6 +27,8 @@ function mapRow(row) {
     redeemHint: row.redeem_hint,
     dLat: row.d_lat,
     dLon: row.d_lon,
+    lat: row.lat ?? null,
+    lon: row.lon ?? null,
     imageUrl: row.image_url || null,
     imagePath: row.image_path || null,
   };
@@ -70,6 +72,8 @@ function draftToRow(draft) {
     starts_at: draft.startsAt || null,
     redemption_limit: draft.redemptionLimit ? parseInt(draft.redemptionLimit, 10) : null,
     business_hours: draft.businessHours || null,
+    lat: draft.lat ?? null,
+    lon: draft.lon ?? null,
     is_bank: isBank,
     redeem_hint: isBank ? 'Pagar con tarjeta adherida' : 'Mostrar código en caja',
   };
@@ -151,6 +155,8 @@ export async function publishPromo(draft, photoFiles = []) {
       redeemHint: 'Mostrar código en caja',
       dLat: 0,
       dLon: 0,
+      lat: draft.lat ?? null,
+      lon: draft.lon ?? null,
       photoUrls: photoFiles.map((f) => URL.createObjectURL(f)),
       imageUrl: photoFiles[0] ? URL.createObjectURL(photoFiles[0]) : null,
     };
