@@ -1,25 +1,25 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
-import { decoratePromos } from '../utils/promos';
+import { decoratePromos, sortPromos } from '../utils/promos';
 import PromoListItem from '../components/PromoListItem';
 import SkeletonListItem from '../components/SkeletonListItem';
+import SortControl from '../components/SortControl';
+import PromoMap from '../components/PromoMap';
 
 export default function NearbyScreen() {
   const { state, openDetail, requestLocation } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
+  const [sortBy, setSortBy] = useState('distancia');
 
   const nearby = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
-    return decorated.filter((p) => !p.isBank).sort((a, b) => a.distanceKm - b.distanceKm);
-  }, [state.promos, state.favorites, coords]);
+    return sortPromos(
+      decorated.filter((p) => !p.isBank),
+      sortBy,
+    );
+  }, [state.promos, state.favorites, coords, sortBy]);
 
-  const pins = nearby.slice(0, 5).map((p, i) => {
-    const angle = (i / 5) * Math.PI * 2;
-    const r = 30 + i * 8;
-    const top = 50 + Math.sin(angle) * ((r / 190) * 100);
-    const left = 50 + Math.cos(angle) * ((r / 480) * 100);
-    return { ...p, top, left };
-  });
+  const handleOpen = useCallback((id) => openDetail(id), [openDetail]);
 
   const mapCtaLabel = state.geoStatus === 'loading' ? 'Buscando tu ubicación…' : state.geoStatus === 'denied' ? 'Reintentar ubicación' : 'Activar geolocalizador';
 
@@ -31,22 +31,7 @@ export default function NearbyScreen() {
       </div>
 
       <div className="map-frame">
-        <div className="map-grid" />
-        <div className="map-you" />
-        {pins.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className="map-pin"
-            style={{ top: `${p.top}%`, left: `${p.left}%` }}
-            onClick={() => openDetail(p.id)}
-            aria-label={p.business}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-bg)" strokeWidth="1.5">
-              <path d="M12 21s7-7.5 7-12a7 7 0 10-14 0c0 4.5 7 12 7 12z" />
-            </svg>
-          </button>
-        ))}
+        <PromoMap promos={nearby} coords={coords} onOpen={handleOpen} />
         {state.geoStatus !== 'granted' && (
           <div className="map-overlay">
             <button type="button" className="btn btn-primary" onClick={requestLocation}>
@@ -64,6 +49,7 @@ export default function NearbyScreen() {
             <div className="text-muted" style={{ marginBottom: 10 }}>
               {state.geoStatus === 'granted' ? 'Ordenado por distancia real a tu ubicación' : 'Activá el geolocalizador para ver distancias reales'}
             </div>
+            <SortControl value={sortBy} onChange={setSortBy} />
             {nearby.slice(0, 6).map((p) => (
               <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
             ))}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { haversineKm, decoratePromos } from './promos';
+import { haversineKm, decoratePromos, sortPromos, parseDiscountValue } from './promos';
 import { BASE_LAT, BASE_LON } from '../api/mockData';
 
 describe('haversineKm', () => {
@@ -44,5 +44,39 @@ describe('decoratePromos', () => {
 
     expect(decorated.map((p) => p.id)).toEqual([3, 1, 2]);
     expect(decorated[0].distance).toMatch(/km$/);
+  });
+});
+
+describe('parseDiscountValue', () => {
+  it('extracts the first number from a discount label', () => {
+    expect(parseDiscountValue('20% OFF')).toBe(20);
+    expect(parseDiscountValue('2do al 70%')).toBe(2);
+    expect(parseDiscountValue('sin numero')).toBe(0);
+  });
+});
+
+describe('sortPromos', () => {
+  const promos = [
+    { id: 1, discountLabel: '10% OFF', expiresAt: '2026-08-10', distanceKm: 5 },
+    { id: 2, discountLabel: '30% OFF', expiresAt: '2026-08-01', distanceKm: 1 },
+    { id: 3, discountLabel: '20% OFF', expiresAt: null, distanceKm: 3 },
+  ];
+
+  it('sorts by distance ascending by default', () => {
+    expect(sortPromos(promos, 'distancia').map((p) => p.id)).toEqual([2, 3, 1]);
+  });
+
+  it('sorts by discount value descending', () => {
+    expect(sortPromos(promos, 'descuento').map((p) => p.id)).toEqual([2, 3, 1]);
+  });
+
+  it('sorts by soonest expiry first, promos without a date last', () => {
+    expect(sortPromos(promos, 'vencimiento').map((p) => p.id)).toEqual([2, 1, 3]);
+  });
+
+  it('does not mutate the original array', () => {
+    const copy = [...promos];
+    sortPromos(promos, 'descuento');
+    expect(promos).toEqual(copy);
   });
 });

@@ -1,28 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../state/AppContext';
-import { fetchMyPromos, fetchMyPromoStats, updatePromo, deletePromo } from '../api/promosApi';
+import { fetchMyPromos, fetchMyPromoStats, fetchMyPromoTimeseries, updatePromo, deletePromo } from '../api/promosApi';
 import { compressImage } from '../utils/image';
 import { isPastDate, isFutureDate } from '../utils/date';
 import SkeletonListItem from '../components/SkeletonListItem';
+import TimeseriesChart from '../components/TimeseriesChart';
 
 const CATEGORY_OPTIONS = [
   { value: 'Gastronomía', label: 'Gastronomía' },
-  { value: 'Retail', label: 'Retail' },
+  { value: 'Indumentaria', label: 'Indumentaria' },
+  { value: 'Electrodomésticos', label: 'Electrodomésticos' },
   { value: 'Supermercados', label: 'Supermercados' },
   { value: 'Farmacias', label: 'Farmacias' },
   { value: 'Bancos', label: 'Promoción bancaria' },
 ];
 
-const EMPTY_DRAFT = { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' };
+const EMPTY_DRAFT = {
+  businessName: '',
+  category: 'Gastronomía',
+  discountLabel: '',
+  expiry: '',
+  startsAt: '',
+  redemptionLimit: '',
+  businessHours: '',
+  description: '',
+};
+const MAX_PHOTOS = 4;
 
 export default function PublishScreen() {
   const { state, setDraftField, submitDraft } = useApp();
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
+  const [existingPhotoUrls, setExistingPhotoUrls] = useState([]);
   const [myPromos, setMyPromos] = useState([]);
   const [stats, setStats] = useState({});
+  const [timeseries, setTimeseries] = useState([]);
   const [loadingMyPromos, setLoadingMyPromos] = useState(true);
   const fileInputRef = useRef(null);
 
@@ -42,6 +56,9 @@ export default function PublishScreen() {
     fetchMyPromoStats()
       .then((rows) => setStats(Object.fromEntries(rows.map((r) => [r.promo_id, r]))))
       .catch(() => {});
+    fetchMyPromoTimeseries()
+      .then(setTimeseries)
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -49,29 +66,40 @@ export default function PublishScreen() {
   }, []);
 
   const handlePhotoChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const compressed = await compressImage(file);
-    setPhotoFile(compressed);
-    setPhotoPreview(URL.createObjectURL(compressed));
+    const files = Array.from(e.target.files || []).slice(0, MAX_PHOTOS - photoFiles.length);
+    if (!files.length) return;
+    const compressed = await Promise.all(files.map(compressImage));
+    setPhotoFiles((prev) => [...prev, ...compressed]);
+    setPhotoPreviews((prev) => [...prev, ...compressed.map((f) => URL.createObjectURL(f))]);
+    setExistingPhotoUrls([]);
+    e.target.value = '';
+  };
+
+  const removeNewPhoto = (index) => {
+    setPhotoFiles((prev) => prev.filter((_, i) => i !== index));
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const resetForm = () => {
     setEditingId(null);
-    setPhotoFile(null);
-    setPhotoPreview(null);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+    setExistingPhotoUrls([]);
     Object.entries(EMPTY_DRAFT).forEach(([field, value]) => setDraftField(field, value));
   };
 
   const startEditing = (promo) => {
     setEditingId(promo.id);
-    setPhotoFile(null);
-    setPhotoPreview(promo.imageUrl || null);
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+    setExistingPhotoUrls(promo.photoUrls || []);
     setDraftField('businessName', promo.business);
     setDraftField('category', promo.category);
     setDraftField('discountLabel', promo.discountLabel);
     setDraftField('expiry', promo.expiresAt || '');
     setDraftField('startsAt', promo.startsAt || '');
+    setDraftField('redemptionLimit', promo.redemptionLimit ? String(promo.redemptionLimit) : '');
+    setDraftField('businessHours', promo.businessHours || '');
     setDraftField('description', promo.description);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -88,9 +116,9 @@ export default function PublishScreen() {
     setSubmitting(true);
     try {
       if (editingId) {
-        await updatePromo(editingId, draft, photoFile);
+        await updatePromo(editingId, draft, photoFiles);
       } else {
-        await submitDraft(draft, photoFile);
+        await submitDraft(draft, photoFiles);
       }
       resetForm();
       loadMyPromos();
@@ -131,18 +159,40 @@ export default function PublishScreen() {
             <input className="input" type="date" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} min={new Date().toISOString().slice(0, 10)} />
           </div>
         </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div className="field" style={{ flex: 1 }}>
+            <label>Publicar a partir de (opcional)</label>
+            <input
+              className="input"
+              type="date"
+              value={draft.startsAt}
+              onChange={(e) => setDraftField('startsAt', e.target.value)}
+              min={new Date().toISOString().slice(0, 10)}
+            />
+          </div>
+          <div className="field" style={{ flex: 1 }}>
+            <label>Límite de canjes por persona (opcional)</label>
+            <input
+              className="input"
+              type="number"
+              min="1"
+              value={draft.redemptionLimit}
+              onChange={(e) => setDraftField('redemptionLimit', e.target.value)}
+              placeholder="Sin límite"
+            />
+          </div>
+        </div>
+        <div className="text-muted" style={{ fontSize: 11, marginTop: -8 }}>
+          "Publicar a partir de" vacío = se ve apenas la publiqués. "Límite de canjes" vacío = sin límite por persona.
+        </div>
         <div className="field">
-          <label>Publicar a partir de (opcional)</label>
+          <label>Horario de atención (opcional)</label>
           <input
             className="input"
-            type="date"
-            value={draft.startsAt}
-            onChange={(e) => setDraftField('startsAt', e.target.value)}
-            min={new Date().toISOString().slice(0, 10)}
+            value={draft.businessHours}
+            onChange={(e) => setDraftField('businessHours', e.target.value)}
+            placeholder="Ej: Lun a Sáb 9 a 20 hs"
           />
-          <div className="text-muted" style={{ fontSize: 11 }}>
-            Dejalo vacío para que se vea apenas la publiqués, o elegí una fecha futura para que aparezca sola ese día.
-          </div>
         </div>
         <div className="field">
           <label>Descripción</label>
@@ -154,17 +204,55 @@ export default function PublishScreen() {
           />
         </div>
 
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
-        <div className="dropzone" onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', overflow: 'hidden', padding: photoPreview ? 0 : undefined }}>
-          {photoPreview ? (
-            <img src={photoPreview} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <>
-              Foto o logo del comercio
-              <br />
-              <br />
-              (tocá para elegir una imagen)
-            </>
+        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handlePhotoChange} style={{ display: 'none' }} />
+        <div className="field">
+          <label>Fotos del comercio (hasta {MAX_PHOTOS})</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {existingPhotoUrls.map((url, i) => (
+              <div key={`existing-${i}`} style={{ width: 74, height: 74, borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
+            {photoPreviews.map((url, i) => (
+              <div key={`new-${i}`} style={{ position: 'relative', width: 74, height: 74, borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <button
+                  type="button"
+                  onClick={() => removeNewPhoto(i)}
+                  aria-label="Quitar foto"
+                  style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    fontSize: 12,
+                    lineHeight: 1,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {existingPhotoUrls.length + photoFiles.length < MAX_PHOTOS && (
+              <div
+                className="dropzone"
+                onClick={() => fileInputRef.current?.click()}
+                style={{ width: 74, height: 74, cursor: 'pointer', fontSize: 10.5, padding: 6 }}
+              >
+                + Agregar
+              </div>
+            )}
+          </div>
+          {existingPhotoUrls.length > 0 && (
+            <div className="text-muted" style={{ fontSize: 11 }}>
+              Si elegís fotos nuevas, reemplazan a todas las actuales.
+            </div>
           )}
         </div>
 
@@ -199,6 +287,15 @@ export default function PublishScreen() {
               <div className="stats-summary-value">{totalRedemptions}</div>
               <div className="stats-summary-label">Canjes totales</div>
             </div>
+          </div>
+        )}
+
+        {!loadingMyPromos && timeseries.length > 0 && (
+          <div style={{ marginBottom: 6 }}>
+            <div className="text-muted" style={{ fontSize: 11 }}>
+              Canjes de los últimos 14 días
+            </div>
+            <TimeseriesChart data={timeseries} />
           </div>
         )}
 

@@ -2,7 +2,7 @@ import { useApp } from '../state/AppContext';
 import Logo from '../components/Logo';
 import PasswordField from '../components/PasswordField';
 
-const NEGOCIO_CATEGORIES = ['Gastronomía', 'Retail', 'Supermercados', 'Farmacias', 'Bancos'];
+const NEGOCIO_CATEGORIES = ['Gastronomía', 'Indumentaria', 'Electrodomésticos', 'Supermercados', 'Farmacias', 'Bancos'];
 
 export default function SignupScreen() {
   const { state, setSignupField, submitSignup, goTo } = useApp();

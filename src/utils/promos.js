@@ -28,3 +28,25 @@ export function decoratePromos(promos, { favorites, coords }) {
   if (coords) decorated.sort((a, b) => a.distanceKm - b.distanceKm);
   return decorated;
 }
+
+export function parseDiscountValue(label) {
+  const match = /(\d+(?:[.,]\d+)?)/.exec(label || '');
+  return match ? parseFloat(match[1].replace(',', '.')) : 0;
+}
+
+export function sortPromos(promos, sortBy) {
+  const list = [...promos];
+  if (sortBy === 'descuento') {
+    list.sort((a, b) => parseDiscountValue(b.discountLabel) - parseDiscountValue(a.discountLabel));
+  } else if (sortBy === 'vencimiento') {
+    list.sort((a, b) => {
+      if (!a.expiresAt && !b.expiresAt) return 0;
+      if (!a.expiresAt) return 1;
+      if (!b.expiresAt) return -1;
+      return a.expiresAt.localeCompare(b.expiresAt);
+    });
+  } else {
+    list.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+  }
+  return list;
+}

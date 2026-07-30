@@ -6,11 +6,13 @@ import { recordRedemption } from '../api/redemptionsApi';
 import { ChevronLeftIcon, HeartIcon, ShareIcon, CloseIcon } from '../components/icons';
 
 export default function DetailScreen() {
-  const { state, goHome, toggleFav } = useApp();
+  const { state, goHome, toggleFav, openBusiness } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [redeemed, setRedeemed] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [redeemError, setRedeemError] = useState(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   const promo = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
@@ -32,10 +34,15 @@ export default function DetailScreen() {
 
   const badgeLabel = promo.isBank ? 'BANCARIA' : promo.category.toUpperCase();
 
-  const handleShowCode = () => {
-    setRedeemed(true);
-    setShowQrModal(true);
-    recordRedemption(promo.id);
+  const handleShowCode = async () => {
+    setRedeemError(null);
+    try {
+      await recordRedemption(promo.id);
+      setRedeemed(true);
+      setShowQrModal(true);
+    } catch (error) {
+      setRedeemError(error.message);
+    }
   };
 
   const handleShare = async () => {
@@ -59,8 +66,35 @@ export default function DetailScreen() {
   return (
     <div className="screen">
       <div className="detail-hero">
-        {promo.imageUrl ? (
-          <img src={promo.imageUrl} alt={promo.business} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {promo.photoUrls?.length ? (
+          <>
+            <img
+              src={promo.photoUrls[photoIndex]}
+              alt={promo.business}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            {promo.photoUrls.length > 1 && (
+              <div style={{ position: 'absolute', bottom: 10, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
+                {promo.photoUrls.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setPhotoIndex(i)}
+                    aria-label={`Foto ${i + 1}`}
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      border: 'none',
+                      padding: 0,
+                      background: i === photoIndex ? '#ffffff' : 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="detail-hero-label">{promo.imageLabel}</div>
         )}
@@ -82,7 +116,17 @@ export default function DetailScreen() {
           {badgeLabel}
         </div>
         <div className="card-title-row">
-          <h3 style={{ color: 'var(--color-dark-text)' }}>{promo.business}</h3>
+          {promo.ownerId ? (
+            <button
+              type="button"
+              onClick={() => openBusiness(promo.ownerId)}
+              style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left', cursor: 'pointer' }}
+            >
+              <h3 style={{ color: 'var(--color-dark-text)', textDecoration: 'underline' }}>{promo.business}</h3>
+            </button>
+          ) : (
+            <h3 style={{ color: 'var(--color-dark-text)' }}>{promo.business}</h3>
+          )}
           <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 22, color: 'var(--color-accent-400)', whiteSpace: 'nowrap' }}>
             {promo.discountLabel}
           </div>
@@ -101,6 +145,18 @@ export default function DetailScreen() {
             <span style={{ color: 'var(--color-dark-text-muted)' }}>Cómo usarla</span>
             <span style={{ fontWeight: 700 }}>{promo.redeemHint}</span>
           </div>
+          {promo.redemptionLimit && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: 'var(--color-dark-text-muted)' }}>Límite de canjes</span>
+              <span style={{ fontWeight: 700 }}>{promo.redemptionLimit} por persona</span>
+            </div>
+          )}
+          {promo.businessHours && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: 'var(--color-dark-text-muted)' }}>Horario</span>
+              <span style={{ fontWeight: 700 }}>{promo.businessHours}</span>
+            </div>
+          )}
         </div>
         <div className="detail-code">
           <div className="detail-code-value" style={{ color: 'var(--color-text)' }}>
@@ -110,6 +166,9 @@ export default function DetailScreen() {
       </div>
 
       <div className="detail-footer">
+        {redeemError && (
+          <div style={{ color: '#ff9d9d', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>{redeemError}</div>
+        )}
         <button type="button" className="btn btn-primary btn-block" onClick={handleShowCode}>
           {redeemed ? '✓ Código mostrado' : 'Mostrar código en el local'}
         </button>

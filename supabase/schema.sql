@@ -33,9 +33,9 @@ insert into public.promos (business, category, discount_label, description, expi
   ('Farmacity Centro', 'Farmacias', '2do al 70%', '2do producto de perfumería e higiene al 70% de descuento.', '15/09', false, 'FARM2X70', 'Mostrar código en caja', -0.0057, 0.0057),
   ('Banco Andes', 'Bancos', '30% OFF', 'Con tarjeta de crédito Banco Andes, todos los jueves, tope de reintegro $6000.', '30/09', true, 'BAND30JUE', 'Pagar con tarjeta adherida', 0, 0),
   ('DíaSuper', 'Supermercados', '3x2', 'En almacén y bebidas seleccionadas, todos los fines de semana.', '20/08', false, 'DIA3X2FDS', 'Mostrar código en caja', 0.0076, -0.0076),
-  ('Urbana Ropa', 'Retail', '25% OFF', 'En la nueva colección de invierno, todos los locales del país.', '10/09', false, 'URB25INV', 'Mostrar código en caja', -0.0134, -0.0134),
+  ('Urbana Ropa', 'Indumentaria', '25% OFF', 'En la nueva colección de invierno, todos los locales del país.', '10/09', false, 'URB25INV', 'Mostrar código en caja', -0.0134, -0.0134),
   ('Banco Sur', 'Bancos', '15% OFF', 'En supermercados, con tope de reintegro $4000, pagando con billetera Sur.', '28/08', true, 'SUR15SUP', 'Pagar con billetera Sur', 0, 0),
   ('Trattoria Bianca', 'Gastronomía', '2x1 pastas', 'De domingo a jueves, no acumulable con otras promociones.', '05/09', false, 'BIANCA2X1', 'Mostrar código al mozo', 0.0102, 0.0102),
   ('Farmalife', 'Farmacias', '15% OFF', 'En medicamentos de venta libre y dermocosmética.', '12/09', false, 'LIFE15DVL', 'Mostrar código en caja', -0.0191, 0.0191),
-  ('MegaHogar', 'Retail', '6 cuotas sin interés', 'En electrodomésticos de línea blanca, pagando con tarjetas adheridas.', '25/09', false, 'MEGA6SI', 'Pagar con tarjeta adherida', 0.028, -0.028),
+  ('MegaHogar', 'Electrodomésticos', '6 cuotas sin interés', 'En electrodomésticos de línea blanca, pagando con tarjetas adheridas.', '25/09', false, 'MEGA6SI', 'Pagar con tarjeta adherida', 0.028, -0.028),
   ('CoopMarket', 'Supermercados', '10% OFF', 'Todos los martes y miércoles, en compras superiores a $10000.', '18/08', false, 'COOP10MX', 'Mostrar código en caja', -0.0045, -0.0045);

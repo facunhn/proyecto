@@ -105,6 +105,7 @@ export function AppProvider({ children }) {
       toggleBankOnly: () => dispatch({ type: 'TOGGLE_BANK_ONLY' }),
 
       openDetail: (id) => dispatch({ type: 'OPEN_DETAIL', id }),
+      openBusiness: (id) => dispatch({ type: 'OPEN_BUSINESS', id }),
       toggleFav: (id, e) => {
         if (e?.stopPropagation) e.stopPropagation();
         const wasFav = stateRef.current.favorites.includes(id);

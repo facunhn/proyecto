@@ -6,7 +6,13 @@ export async function recordRedemption(promoId) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase.from('redemptions').insert({ user_id: user.id, promo_id: promoId });
+  const { error } = await supabase.from('redemptions').insert({ user_id: user.id, promo_id: promoId });
+  if (error) {
+    if (/redemption_limit_reached/.test(error.message)) {
+      throw new Error('Ya alcanzaste el límite de canjes que el negocio permite para esta promoción.');
+    }
+    throw new Error(error.message);
+  }
 }
 
 export async function fetchRedemptions() {

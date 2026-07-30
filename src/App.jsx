@@ -13,6 +13,10 @@ import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 import RedemptionsScreen from './screens/RedemptionsScreen';
 import NotificationsScreen from './screens/NotificationsScreen';
+import BusinessProfileScreen from './screens/BusinessProfileScreen';
+import HelpScreen from './screens/HelpScreen';
+import TermsScreen from './screens/TermsScreen';
+import PrivacyScreen from './screens/PrivacyScreen';
 
 const SCREENS = {
   login: LoginScreen,
@@ -28,6 +32,10 @@ const SCREENS = {
   editProfile: EditProfileScreen,
   redemptions: RedemptionsScreen,
   notifications: NotificationsScreen,
+  business: BusinessProfileScreen,
+  help: HelpScreen,
+  terms: TermsScreen,
+  privacy: PrivacyScreen,
 };
 
 const NO_NAV_SCREENS = ['login', 'signup', 'resetPassword'];

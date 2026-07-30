@@ -109,13 +109,13 @@ export default function ProfileScreen() {
           </div>
         )}
 
-        <div className="profile-row" role="button" tabIndex={0}>
+        <button type="button" className="profile-row" onClick={() => goTo('help')}>
           <div className="profile-row-left">
             <HelpIcon size={18} />
             <div>Ayuda</div>
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
-        </div>
+        </button>
         <button type="button" className="profile-row" style={{ padding: '18px 0', gap: 12 }} onClick={logout}>
           <div className="profile-row-left" style={{ color: 'var(--color-accent-400)' }}>
             <LogoutIcon size={18} style={{ color: 'var(--color-accent-400)' }} />

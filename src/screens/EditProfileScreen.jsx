@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { ChevronLeftIcon } from '../components/icons';
 
-const CATEGORY_OPTIONS = ['Gastronomía', 'Retail', 'Supermercados', 'Farmacias', 'Bancos'];
+const CATEGORY_OPTIONS = ['Gastronomía', 'Indumentaria', 'Electrodomésticos', 'Supermercados', 'Farmacias', 'Bancos'];
 
 export default function EditProfileScreen() {
   const { state, goTo, updateMyProfile } = useApp();

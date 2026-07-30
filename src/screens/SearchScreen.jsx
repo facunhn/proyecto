@@ -1,18 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
-import { decoratePromos } from '../utils/promos';
+import { decoratePromos, sortPromos } from '../utils/promos';
 import CategoryChips from '../components/CategoryChips';
 import PromoListItem from '../components/PromoListItem';
 import SkeletonListItem from '../components/SkeletonListItem';
+import SortControl from '../components/SortControl';
 
 export default function SearchScreen() {
   const { state, openDetail, setSearchQuery, setSearchCategory, toggleBankOnly } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
+  const [sortBy, setSortBy] = useState('distancia');
 
   const searchResults = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
     const q = state.searchQuery.trim().toLowerCase();
-    return decorated.filter((p) => {
+    const filtered = decorated.filter((p) => {
       const matchesCat = state.searchCategory === 'Todos' || p.category === state.searchCategory;
       const matchesBank = !state.bankOnly || p.isBank;
       const matchesQuery =
@@ -22,7 +24,8 @@ export default function SearchScreen() {
         p.description.toLowerCase().includes(q);
       return matchesCat && matchesBank && matchesQuery;
     });
-  }, [state.promos, state.favorites, coords, state.searchQuery, state.searchCategory, state.bankOnly]);
+    return sortPromos(filtered, sortBy);
+  }, [state.promos, state.favorites, coords, state.searchQuery, state.searchCategory, state.bankOnly, sortBy]);
 
   return (
     <div className="screen">
@@ -47,6 +50,7 @@ export default function SearchScreen() {
             <div className="text-muted" style={{ fontSize: 12, marginBottom: 10, color: 'var(--color-dark-text-muted)' }}>
               {searchResults.length} resultados
             </div>
+            <SortControl value={sortBy} onChange={setSortBy} />
             {searchResults.map((p) => (
               <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
             ))}

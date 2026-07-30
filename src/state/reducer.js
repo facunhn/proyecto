@@ -18,8 +18,9 @@ export const initialState = {
 
   favorites: [],
   selectedId: null,
+  selectedBusinessId: null,
 
-  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' },
+  draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '' },
   draftJustPublished: false,
   publishedPromos: [],
 
@@ -76,6 +77,9 @@ export function reducer(state, action) {
     case 'OPEN_DETAIL':
       return { ...state, screen: 'detail', selectedId: action.id };
 
+    case 'OPEN_BUSINESS':
+      return { ...state, screen: 'business', selectedBusinessId: action.id };
+
     case 'TOGGLE_FAV': {
       const has = state.favorites.includes(action.id);
       return { ...state, favorites: has ? state.favorites.filter((id) => id !== action.id) : [...state.favorites, action.id] };
@@ -95,7 +99,7 @@ export function reducer(state, action) {
         ...state,
         publishedPromos: [action.promo, ...state.publishedPromos],
         promos: [action.promo, ...state.promos],
-        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', description: '' },
+        draft: { businessName: '', category: 'Gastronomía', discountLabel: '', expiry: '', startsAt: '', redemptionLimit: '', businessHours: '', description: '' },
         draftJustPublished: true,
       };
 
