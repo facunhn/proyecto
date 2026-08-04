@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { decoratePromos } from '../utils/promos';
 import { fetchBusinessReviews, fetchMyReviewFor, submitBusinessReview } from '../api/businessReviewsApi';
+import { fetchMyFollowedBusinessIds, followBusiness, unfollowBusiness } from '../api/followsApi';
 import PromoListItem from '../components/PromoListItem';
 import StarRating from '../components/StarRating';
 import ReportButton from '../components/ReportButton';
@@ -20,6 +21,8 @@ export default function BusinessProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const [following, setFollowing] = useState(false);
+  const [followBusy, setFollowBusy] = useState(false);
 
   const businessPromos = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
@@ -48,6 +51,30 @@ export default function BusinessProfileScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId]);
 
+  useEffect(() => {
+    if (!state.session) return;
+    fetchMyFollowedBusinessIds()
+      .then((ids) => setFollowing(ids.includes(businessId)))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businessId, state.session]);
+
+  const handleToggleFollow = async () => {
+    if (!requireAuth() || followBusy) return;
+    setFollowBusy(true);
+    try {
+      if (following) {
+        await unfollowBusiness(businessId);
+        setFollowing(false);
+      } else {
+        await followBusiness(businessId);
+        setFollowing(true);
+      }
+    } finally {
+      setFollowBusy(false);
+    }
+  };
+
   const handleSubmitReview = async () => {
     if (!myRating) return;
     if (!requireAuth()) return;
@@ -73,7 +100,7 @@ export default function BusinessProfileScreen() {
         <button type="button" className="btn btn-icon btn-secondary" onClick={goHome} aria-label="Volver">
           <ChevronLeftIcon size={16} strokeWidth="2.2" />
         </button>
-        <div>
+        <div style={{ flex: 1 }}>
           <h4 style={{ marginBottom: 4 }}>{businessName}</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <StarRating value={average} />
@@ -82,6 +109,15 @@ export default function BusinessProfileScreen() {
             </span>
           </div>
         </div>
+        <button
+          type="button"
+          className={following ? 'btn btn-secondary' : 'btn'}
+          style={{ fontSize: 12.5, padding: '8px 14px', whiteSpace: 'nowrap' }}
+          disabled={followBusy}
+          onClick={handleToggleFollow}
+        >
+          {following ? 'Siguiendo ✓' : 'Seguir'}
+        </button>
       </div>
 
       <div className="screen-body screen-body--dark">

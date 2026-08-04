@@ -16,7 +16,7 @@ import { fetchFavoriteIds, addFavorite, removeFavorite } from '../api/favoritesA
 
 const AppContext = createContext(null);
 
-const PROTECTED_SCREENS = ['favorites', 'publish', 'profile', 'editProfile', 'redemptions', 'notifications'];
+const PROTECTED_SCREENS = ['favorites', 'publish', 'profile', 'editProfile', 'redemptions', 'notifications', 'adminReports'];
 
 function loadPromos(dispatch) {
   dispatch({ type: 'PROMOS_LOADING' });

@@ -32,11 +32,17 @@ export default function SearchScreen() {
       <div className="screen-header">
         <h4 style={{ marginBottom: 14 }}>Buscar</h4>
         <div className="field" style={{ marginBottom: 12 }}>
-          <input className="input" value={state.searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Comercio, rubro o banco" />
+          <input
+            className="input"
+            aria-label="Buscar por comercio, rubro o banco"
+            value={state.searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Comercio, rubro o banco"
+          />
         </div>
         <CategoryChips active={state.searchCategory} onSelect={setSearchCategory} />
         <label className="radio" style={{ marginTop: 12 }}>
-          <input type="checkbox" checked={state.bankOnly} onChange={toggleBankOnly} style={{ display: 'none' }} />
+          <input type="checkbox" checked={state.bankOnly} onChange={toggleBankOnly} className="sr-only" />
           <div className={`checkbox-box${state.bankOnly ? ' is-checked' : ''}`} />
           <div style={{ fontSize: 12.5, color: 'var(--color-dark-text)' }}>Solo promociones bancarias</div>
         </label>

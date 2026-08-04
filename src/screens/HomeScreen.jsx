@@ -54,7 +54,13 @@ export default function HomeScreen() {
                 <div style={{ position: 'absolute', top: 5, right: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--color-accent-400)' }} />
               )}
             </button>
-            <button type="button" className="avatar-chip" style={{ border: '1px solid rgba(255,255,255,0.4)', cursor: 'pointer' }} onClick={() => goTo('profile')}>
+            <button
+              type="button"
+              className="avatar-chip"
+              style={{ border: '1px solid rgba(255,255,255,0.4)', cursor: 'pointer' }}
+              onClick={() => goTo('profile')}
+              aria-label="Ver mi perfil"
+            >
               {accountInitials(state.session, state.accountType)}
             </button>
           </div>

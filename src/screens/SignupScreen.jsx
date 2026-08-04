@@ -34,8 +34,9 @@ export default function SignupScreen() {
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div className="field">
-          <label>{isNegocio ? 'Nombre del comercio' : 'Nombre'}</label>
+          <label htmlFor="signup-name">{isNegocio ? 'Nombre del comercio' : 'Nombre'}</label>
           <input
+            id="signup-name"
             className="input"
             value={form.name}
             onChange={(e) => setSignupField('name', e.target.value)}
@@ -46,8 +47,8 @@ export default function SignupScreen() {
         {isNegocio && (
           <>
             <div className="field">
-              <label>Rubro</label>
-              <select className="input" value={form.category} onChange={(e) => setSignupField('category', e.target.value)}>
+              <label htmlFor="signup-category">Rubro</label>
+              <select id="signup-category" className="input" value={form.category} onChange={(e) => setSignupField('category', e.target.value)}>
                 {NEGOCIO_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat === 'Bancos' ? 'Banco / Financiera' : cat}
@@ -57,24 +58,24 @@ export default function SignupScreen() {
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <div className="field" style={{ flex: 1 }}>
-                <label>Dirección</label>
-                <input className="input" value={form.address} onChange={(e) => setSignupField('address', e.target.value)} placeholder="Calle y número" />
+                <label htmlFor="signup-address">Dirección</label>
+                <input id="signup-address" className="input" value={form.address} onChange={(e) => setSignupField('address', e.target.value)} placeholder="Calle y número" />
               </div>
               <div className="field" style={{ flex: 1 }}>
-                <label>Ciudad</label>
-                <input className="input" value={form.city} onChange={(e) => setSignupField('city', e.target.value)} placeholder="Ej: Buenos Aires" />
+                <label htmlFor="signup-city">Ciudad</label>
+                <input id="signup-city" className="input" value={form.city} onChange={(e) => setSignupField('city', e.target.value)} placeholder="Ej: Buenos Aires" />
               </div>
             </div>
             <div className="field">
-              <label>Teléfono</label>
-              <input className="input" value={form.phone} onChange={(e) => setSignupField('phone', e.target.value)} placeholder="Ej: 11 5555-5555" />
+              <label htmlFor="signup-phone">Teléfono</label>
+              <input id="signup-phone" className="input" value={form.phone} onChange={(e) => setSignupField('phone', e.target.value)} placeholder="Ej: 11 5555-5555" />
             </div>
           </>
         )}
 
         <div className="field">
-          <label>Email</label>
-          <input className="input" type="email" value={form.email} onChange={(e) => setSignupField('email', e.target.value)} placeholder="tu@email.com" />
+          <label htmlFor="signup-email">Email</label>
+          <input id="signup-email" className="input" type="email" value={form.email} onChange={(e) => setSignupField('email', e.target.value)} placeholder="tu@email.com" />
         </div>
         <PasswordField label="Contraseña" value={form.password} onChange={(e) => setSignupField('password', e.target.value)} placeholder="••••••••" />
         {state.authError && <div style={{ color: '#ff9d9d', fontSize: 12.5 }}>{state.authError}</div>}
@@ -84,9 +85,9 @@ export default function SignupScreen() {
       </form>
       <div className="auth-footer">
         ¿Ya tenés cuenta?{' '}
-        <span className="auth-footer-link" onClick={() => goTo('login')}>
+        <button type="button" className="auth-footer-link" onClick={() => goTo('login')}>
           Iniciá sesión
-        </span>
+        </button>
       </div>
     </div>
   );

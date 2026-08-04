@@ -172,6 +172,14 @@ export function EyeOffIcon(props) {
   );
 }
 
+export function ShieldIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
+    </Icon>
+  );
+}
+
 export function AhorrixMark({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100">

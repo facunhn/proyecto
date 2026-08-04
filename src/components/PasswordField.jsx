@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { EyeIcon, EyeOffIcon } from './icons';
 
 export default function PasswordField({ label, value, onChange, placeholder }) {
   const [visible, setVisible] = useState(false);
+  const inputId = useId();
 
   return (
     <div className="field">
-      <label>{label}</label>
+      <label htmlFor={inputId}>{label}</label>
       <div style={{ position: 'relative' }}>
         <input
+          id={inputId}
           className="input"
           type={visible ? 'text' : 'password'}
           value={value}

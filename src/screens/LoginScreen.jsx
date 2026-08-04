@@ -48,8 +48,8 @@ export default function LoginScreen() {
         ) : (
           <form onSubmit={handleResetSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="field">
-              <label>Email</label>
-              <input className="input" type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} placeholder="tu@email.com" />
+              <label htmlFor="reset-email">Email</label>
+              <input id="reset-email" className="input" type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} placeholder="tu@email.com" />
             </div>
             {state.authError && <div style={{ color: '#ff9d9d', fontSize: 12.5 }}>{state.authError}</div>}
             <button type="submit" className="btn btn-primary btn-block" disabled={!resetEmail.trim() || state.authSubmitting}>
@@ -76,8 +76,8 @@ export default function LoginScreen() {
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div className="field">
-          <label>Email</label>
-          <input className="input" type="email" value={email} onChange={(e) => setLoginField('email', e.target.value)} placeholder="tu@email.com" />
+          <label htmlFor="login-email">Email</label>
+          <input id="login-email" className="input" type="email" value={email} onChange={(e) => setLoginField('email', e.target.value)} placeholder="tu@email.com" />
         </div>
         <PasswordField label="Contraseña" value={password} onChange={(e) => setLoginField('password', e.target.value)} placeholder="••••••••" />
         <button type="button" className="auth-footer-link" style={{ textAlign: 'right', fontSize: 12.5 }} onClick={openForgotMode}>
@@ -92,9 +92,9 @@ export default function LoginScreen() {
       </form>
       <div className="auth-footer">
         ¿No tenés cuenta?{' '}
-        <span className="auth-footer-link" onClick={() => goTo('signup')}>
+        <button type="button" className="auth-footer-link" onClick={() => goTo('signup')}>
           Creá una
-        </span>
+        </button>
       </div>
       <button type="button" className="auth-skip" onClick={skipAuth}>
         Continuar sin cuenta

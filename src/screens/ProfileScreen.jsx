@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../state/AppContext';
 import { accountInitials, profileName } from '../utils/account';
-import { ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon } from '../components/icons';
+import { ProfileIcon, HistoryIcon, BellIcon, HelpIcon, LogoutIcon, ChevronRightIcon, ShieldIcon } from '../components/icons';
+
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 import { isPushSupported, getExistingPushSubscription, subscribeToPush, unsubscribeFromPush } from '../utils/push';
 import { savePushSubscription, deletePushSubscription } from '../api/pushApi';
 
@@ -9,6 +11,7 @@ export default function ProfileScreen() {
   const { state, logout, goTo, deleteMyAccount } = useApp();
   const isNegocio = state.accountType === 'negocio';
   const accountLabel = isNegocio ? 'Cuenta negocio' : 'Cuenta personal';
+  const isAdmin = !!ADMIN_EMAIL && state.session?.email === ADMIN_EMAIL;
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmText, setConfirmText] = useState('');
@@ -116,6 +119,15 @@ export default function ProfileScreen() {
           </div>
           <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
         </button>
+        {isAdmin && (
+          <button type="button" className="profile-row" onClick={() => goTo('adminReports')}>
+            <div className="profile-row-left">
+              <ShieldIcon size={18} />
+              <div>Panel de administración</div>
+            </div>
+            <ChevronRightIcon size={16} style={{ color: 'var(--color-dark-text-muted)' }} />
+          </button>
+        )}
         <button type="button" className="profile-row" style={{ padding: '18px 0', gap: 12 }} onClick={logout}>
           <div className="profile-row-left" style={{ color: 'var(--color-accent-400)' }}>
             <LogoutIcon size={18} style={{ color: 'var(--color-accent-400)' }} />

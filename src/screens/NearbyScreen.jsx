@@ -10,6 +10,7 @@ export default function NearbyScreen() {
   const { state, openDetail, requestLocation } = useApp();
   const coords = state.geoStatus === 'granted' ? state.coords : null;
   const [sortBy, setSortBy] = useState('distancia');
+  const [maxKm, setMaxKm] = useState(5);
 
   useEffect(() => {
     if (state.geoStatus === 'idle') requestLocation();
@@ -18,11 +19,10 @@ export default function NearbyScreen() {
 
   const nearby = useMemo(() => {
     const decorated = decoratePromos(state.promos, { favorites: state.favorites, coords });
-    return sortPromos(
-      decorated.filter((p) => !p.isBank),
-      sortBy,
-    );
-  }, [state.promos, state.favorites, coords, sortBy]);
+    const places = decorated.filter((p) => !p.isBank);
+    const inRange = coords ? places.filter((p) => p.distanceKm <= maxKm) : places;
+    return sortPromos(inRange, sortBy);
+  }, [state.promos, state.favorites, coords, sortBy, maxKm]);
 
   const handleOpen = useCallback((id) => openDetail(id), [openDetail]);
 
@@ -54,10 +54,33 @@ export default function NearbyScreen() {
             <div className="text-muted" style={{ marginBottom: 10 }}>
               {state.geoStatus === 'granted' ? 'Ordenado por distancia real a tu ubicación' : 'Activá el geolocalizador para ver distancias reales'}
             </div>
+            {state.geoStatus === 'granted' && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                  <label htmlFor="nearby-radius" className="text-muted">
+                    Radio de búsqueda
+                  </label>
+                  <span style={{ fontWeight: 700 }}>{maxKm} km</span>
+                </div>
+                <input
+                  id="nearby-radius"
+                  type="range"
+                  min="1"
+                  max="20"
+                  step="1"
+                  value={maxKm}
+                  onChange={(e) => setMaxKm(Number(e.target.value))}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            )}
             <SortControl value={sortBy} onChange={setSortBy} />
-            {nearby.slice(0, 6).map((p) => (
+            {nearby.slice(0, 20).map((p) => (
               <PromoListItem key={p.id} promo={p} onOpen={openDetail} dark />
             ))}
+            {state.geoStatus === 'granted' && nearby.length === 0 && (
+              <div className="empty-state empty-state--dark">No hay promociones a menos de {maxKm} km. Probá aumentar el radio.</div>
+            )}
           </>
         )}
       </div>

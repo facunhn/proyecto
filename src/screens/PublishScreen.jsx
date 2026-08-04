@@ -198,12 +198,12 @@ export default function PublishScreen() {
 
       <div className="screen-body screen-body--dark" style={{ gap: 14 }}>
         <div className="field">
-          <label>Nombre del comercio</label>
-          <input className="input" value={draft.businessName} onChange={(e) => setDraftField('businessName', e.target.value)} placeholder="Ej: Panadería Norte" />
+          <label htmlFor="publish-name">Nombre del comercio</label>
+          <input id="publish-name" className="input" value={draft.businessName} onChange={(e) => setDraftField('businessName', e.target.value)} placeholder="Ej: Panadería Norte" />
         </div>
         <div className="field">
-          <label>Rubro</label>
-          <select className="input" value={draft.category} onChange={(e) => setDraftField('category', e.target.value)}>
+          <label htmlFor="publish-category">Rubro</label>
+          <select id="publish-category" className="input" value={draft.category} onChange={(e) => setDraftField('category', e.target.value)}>
             {CATEGORY_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -213,18 +213,19 @@ export default function PublishScreen() {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <div className="field" style={{ flex: 1 }}>
-            <label>Descuento</label>
-            <input className="input" value={draft.discountLabel} onChange={(e) => setDraftField('discountLabel', e.target.value)} placeholder="Ej: 20% OFF" />
+            <label htmlFor="publish-discount">Descuento</label>
+            <input id="publish-discount" className="input" value={draft.discountLabel} onChange={(e) => setDraftField('discountLabel', e.target.value)} placeholder="Ej: 20% OFF" />
           </div>
           <div className="field" style={{ flex: 1 }}>
-            <label>Válido hasta</label>
-            <input className="input" type="date" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} min={new Date().toISOString().slice(0, 10)} />
+            <label htmlFor="publish-expiry">Válido hasta</label>
+            <input id="publish-expiry" className="input" type="date" value={draft.expiry} onChange={(e) => setDraftField('expiry', e.target.value)} min={new Date().toISOString().slice(0, 10)} />
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <div className="field" style={{ flex: 1 }}>
-            <label>Publicar a partir de (opcional)</label>
+            <label htmlFor="publish-starts-at">Publicar a partir de (opcional)</label>
             <input
+              id="publish-starts-at"
               className="input"
               type="date"
               value={draft.startsAt}
@@ -233,8 +234,9 @@ export default function PublishScreen() {
             />
           </div>
           <div className="field" style={{ flex: 1 }}>
-            <label>Límite de canjes por persona (opcional)</label>
+            <label htmlFor="publish-redemption-limit">Límite de canjes por persona (opcional)</label>
             <input
+              id="publish-redemption-limit"
               className="input"
               type="number"
               min="1"
@@ -248,8 +250,9 @@ export default function PublishScreen() {
           "Publicar a partir de" vacío = se ve apenas la publiqués. "Límite de canjes" vacío = sin límite por persona.
         </div>
         <div className="field">
-          <label>Horario de atención (opcional)</label>
+          <label htmlFor="publish-hours">Horario de atención (opcional)</label>
           <input
+            id="publish-hours"
             className="input"
             value={draft.businessHours}
             onChange={(e) => setDraftField('businessHours', e.target.value)}
@@ -269,8 +272,9 @@ export default function PublishScreen() {
           {locationError && <div style={{ color: '#ff9d9d', fontSize: 12, marginTop: 4 }}>{locationError}</div>}
         </div>
         <div className="field">
-          <label>Descripción</label>
+          <label htmlFor="publish-description">Descripción</label>
           <textarea
+            id="publish-description"
             className="input"
             value={draft.description}
             onChange={(e) => setDraftField('description', e.target.value)}
@@ -314,13 +318,15 @@ export default function PublishScreen() {
               </div>
             ))}
             {existingPhotoUrls.length + photoFiles.length < MAX_PHOTOS && (
-              <div
+              <button
+                type="button"
                 className="dropzone"
                 onClick={() => fileInputRef.current?.click()}
-                style={{ width: 74, height: 74, cursor: 'pointer', fontSize: 10.5, padding: 6 }}
+                aria-label="Agregar foto"
+                style={{ width: 74, height: 74, fontSize: 10.5, padding: 6 }}
               >
                 + Agregar
-              </div>
+              </button>
             )}
           </div>
           {existingPhotoUrls.length > 0 && (

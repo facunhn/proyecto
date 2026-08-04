@@ -39,13 +39,13 @@ export default function EditProfileScreen() {
       <div className="screen-body screen-body--dark" style={{ gap: 14 }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="field">
-            <label>{isNegocio ? 'Nombre del comercio' : 'Nombre'}</label>
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Juana Pérez" />
+            <label htmlFor="edit-name">{isNegocio ? 'Nombre del comercio' : 'Nombre'}</label>
+            <input id="edit-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Juana Pérez" />
           </div>
           {isNegocio && (
             <div className="field">
-              <label>Rubro</label>
-              <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <label htmlFor="edit-category">Rubro</label>
+              <select id="edit-category" className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
                 {CATEGORY_OPTIONS.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -55,20 +55,20 @@ export default function EditProfileScreen() {
             </div>
           )}
           <div className="field">
-            <label>Dirección</label>
-            <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle y número" />
+            <label htmlFor="edit-address">Dirección</label>
+            <input id="edit-address" className="input" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Calle y número" />
           </div>
           <div className="field">
-            <label>Ciudad</label>
-            <input className="input" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Buenos Aires" />
+            <label htmlFor="edit-city">Ciudad</label>
+            <input id="edit-city" className="input" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ej: Buenos Aires" />
           </div>
           <div className="field">
-            <label>Teléfono</label>
-            <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ej: 11 5555-5555" />
+            <label htmlFor="edit-phone">Teléfono</label>
+            <input id="edit-phone" className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ej: 11 5555-5555" />
           </div>
           <div className="field">
-            <label>Email</label>
-            <input className="input" value={session.email || ''} disabled style={{ opacity: 0.6 }} />
+            <label htmlFor="edit-email">Email</label>
+            <input id="edit-email" className="input" value={session.email || ''} disabled style={{ opacity: 0.6 }} />
           </div>
           {state.authError && <div style={{ color: '#c62828', fontSize: 12.5 }}>{state.authError}</div>}
           {saved && <div style={{ color: 'var(--color-accent-400)', fontSize: 12.5, fontWeight: 700 }}>Datos guardados correctamente.</div>}
